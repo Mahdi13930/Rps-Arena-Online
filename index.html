@@ -1,0 +1,1742 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>RPS Arena — Online & Offline</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#070b16;--card:#101827;--card2:#172235;--line:#26364f;--text:#f8fafc;--muted:#94a3b8;--blue:#3b82f6;--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6}
+body{margin:0;background:radial-gradient(circle at 50% -10%,#243b68 0,#0b1220 38%,#050812 100%);color:var(--text);font-family:Arial,Tahoma,sans-serif;min-height:100vh}
+button,input{font:inherit}
+.app{width:min(1100px,100%);margin:auto;padding:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.logo{font-size:25px;font-weight:900}.wallet{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pill{background:#0d1626;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:bold}
+.screen{display:none}.screen.active{display:block}
+.card{background:rgba(16,24,39,.92);border:1px solid rgba(148,163,184,.14);border-radius:22px;padding:18px;margin:12px 0;box-shadow:0 12px 35px #0005}
+h1,h2,h3{margin-top:5px}.muted{color:var(--muted)}
+.btn{border:0;border-radius:14px;padding:13px 17px;color:#fff;background:var(--blue);font-weight:800;cursor:pointer}.btn:hover{filter:brightness(1.08)}.green{background:var(--green)}.orange{background:var(--orange)}.red{background:var(--red)}.purple{background:var(--purple)}.gray{background:#475569}
+.grid{display:grid;gap:12px}.menu-grid{grid-template-columns:repeat(2,1fr)}
+.mode{padding:22px;text-align:right;border-radius:18px;border:1px solid var(--line);background:linear-gradient(135deg,#16233a,#0d1625);cursor:pointer;color:white}
+.mode b{display:block;font-size:21px;margin-bottom:7px}.mode span{color:var(--muted)}
+.hero{text-align:center;padding:25px 12px}.hero .icons{font-size:52px;letter-spacing:5px}
+.profile{display:grid;grid-template-columns:100px 1fr;gap:16px;align-items:center}.avatar{width:90px;height:90px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#3b82f6,#8b5cf6);font-size:45px}
+.bar{height:10px;background:#263247;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:var(--green);width:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#0c1524;border-radius:14px;padding:12px;text-align:center}.stat b{display:block;font-size:23px}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choice{min-height:110px;background:#182438;border:1px solid #34465f;color:white;border-radius:18px;font-size:42px;cursor:pointer}.choice span{display:block;font-size:14px;color:#cbd5e1;margin-top:6px}
+.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}.scorebox{background:#0b1423;padding:15px;border-radius:18px}.big{font-size:45px;font-weight:900}.vs{font-weight:900;font-size:22px}
+.status{text-align:center;min-height:30px;margin:13px 0;font-size:18px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select{width:100%;background:#0b1423;color:#fff;border:1px solid #334155;border-radius:12px;padding:12px;outline:none}
+.namegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.bracket{display:flex;gap:14px;overflow-x:auto;padding:5px}.round{min-width:205px}.round h3{text-align:center;color:#cbd5e1}.match{background:#0b1423;border:1px solid #26364f;border-radius:14px;padding:11px;margin:11px 0;line-height:1.7}.match.active{border-color:var(--orange);box-shadow:0 0 18px #f59e0b22}.match.win{border-color:var(--green)}
+.shop{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.item{background:#0b1423;border:1px solid #26364f;border-radius:17px;padding:15px;text-align:center}.item .emoji{font-size:40px}
+.leader{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:12px;background:#0b1423;border-radius:12px;margin:7px 0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#020617;border:1px solid #334155;padding:12px 18px;border-radius:14px;display:none;z-index:10}
+.nav{display:flex;gap:7px;overflow:auto;padding:5px 0}.nav button{white-space:nowrap}
+.champ{text-align:center;padding:35px}.cup{font-size:80px}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#26364f;color:#cbd5e1;font-size:12px}
+@media(max-width:700px){.menu-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.namegrid{grid-template-columns:1fr}.shop{grid-template-columns:1fr 1fr}.profile{grid-template-columns:75px 1fr}.avatar{width:70px;height:70px;font-size:35px}}
+</style>
+
+<style>
+.pattern-frame{position:relative;border:3px solid currentColor;border-radius:24px;padding:5px;background:repeating-linear-gradient(45deg,transparent 0 7px,rgba(255,255,255,.18) 7px 10px);box-shadow:0 0 0 2px rgba(255,255,255,.12),0 8px 25px rgba(0,0,0,.28)}
+.pattern-frame::after{content:"✦";position:absolute;right:5px;top:1px;font-size:13px;opacity:.8}
+.day-mode{--bg:#eef3fb;--card:#ffffff;--card2:#f4f7fb;--line:#d6deea;--text:#172033;--muted:#64748b}
+.day-mode body{background:linear-gradient(135deg,#eef3fb,#ffffff)!important;color:#172033!important}
+.day-mode .card{background:rgba(255,255,255,.96);border-color:#d6deea;box-shadow:0 10px 28px rgba(15,23,42,.10)}
+.day-mode .pill,.day-mode .stat,.day-mode .scorebox,.day-mode .item,.day-mode .match,.day-mode .ai-round,.day-mode input,.day-mode select{background:#f8fafc;color:#172033;border-color:#d6deea}
+.day-mode .mode{background:linear-gradient(135deg,#ffffff,#eef3fb);color:#172033;border-color:#d6deea;box-shadow:0 6px 18px rgba(15,23,42,.08)}
+.day-mode .mode span,.day-mode .muted{color:#64748b}
+.day-mode .choice{background:#ffffff;color:#172033;border-color:#cbd5e1}
+.day-mode .choice span{color:#475569}
+.day-mode .nav .gray{background:#e2e8f0;color:#172033}
+.day-mode .leader{background:#f8fafc;border-color:#d6deea}
+
+.rank-badge{display:inline-block;padding:4px 9px;border-radius:999px;font-weight:800;background:rgba(139,92,246,.15)}
+.cup-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ai-round{font-size:20px;font-weight:900;text-align:center;padding:12px;border-radius:14px;background:#0b1423;margin-bottom:10px}
+.profile-frame{position:relative;border:5px solid var(--frame-color,#3b82f6)!important;box-shadow:0 0 0 2px rgba(255,255,255,.85),0 0 22px var(--frame-glow,rgba(59,130,246,.45))!important;background:linear-gradient(135deg,var(--frame-color,#3b82f6),rgba(255,255,255,.12))!important}
+.frame-gold{--frame-color:#f59e0b;--frame-glow:rgba(245,158,11,.65)}
+.frame-fire{--frame-color:#ef4444;--frame-glow:rgba(239,68,68,.65)}
+.frame-diamond{--frame-color:#38bdf8;--frame-glow:rgba(56,189,248,.65)}
+.frame-electric{--frame-color:#a78bfa;--frame-glow:rgba(167,139,250,.65)}
+.frame-crown{--frame-color:#facc15;--frame-glow:rgba(250,204,21,.7)}
+.frame-galaxy{--frame-color:#8b5cf6;--frame-glow:rgba(139,92,246,.7)}
+.frame-planet{--frame-color:#6366f1;--frame-glow:rgba(99,102,241,.6)}
+.frame-ocean{--frame-color:#06b6d4;--frame-glow:rgba(6,182,212,.6)}
+.frame-flower{--frame-color:#ec4899;--frame-glow:rgba(236,72,153,.6)}
+.frame-meteor{--frame-color:#f97316;--frame-glow:rgba(249,115,22,.65)}
+.frame-lion{--frame-color:#eab308;--frame-glow:rgba(234,179,8,.7)}
+.frame-dragon{--frame-color:#dc2626;--frame-glow:rgba(220,38,38,.7)}
+.frame-web{--frame-color:#94a3b8;--frame-glow:rgba(148,163,184,.55)}
+.frame-leaf{--frame-color:#22c55e;--frame-glow:rgba(34,197,94,.6)}
+.frame-crystal{--frame-color:#60a5fa;--frame-glow:rgba(96,165,250,.65)}
+.frame-spiral{--frame-color:#c084fc;--frame-glow:rgba(192,132,252,.65)}
+.frame-warrior{--frame-color:#64748b;--frame-glow:rgba(100,116,139,.65)}
+@media(max-width:700px){.cup-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div class="logo">🪨📄✂️ RPS ARENA</div>
+<div class="wallet"><div class="pill">🪙 <span id="coins">100</span></div><div class="pill">🏆 <span id="trophies">0</span></div></div>
+</header>
+
+<div class="nav">
+<button class="btn gray" onclick="go('home')">🏠 خانه</button>
+<button class="btn gray" onclick="go('profile')">👤 پروفایل</button><button class="btn gray" onclick="go('customize')">🎨 شخصی‌سازی</button>
+<button class="btn gray" onclick="go('leaderboard')">🏅 رتبه‌بندی</button>
+<button class="btn gray" onclick="go('shop')">🛒 فروشگاه</button><button class="btn gray" onclick="toggleDayNight()">🌗 روز/شب</button>
+</div>
+
+<section id="home" class="screen active">
+<div class="card hero">
+<div class="icons">🪨 📄 ✂️</div>
+<h1>RPS Arena</h1>
+<p class="muted">سنگ، کاغذ، قیچی با بازی سریع، جام‌های AI و بازی آنلاین دو نفره</p>
+</div>
+<div class="grid menu-grid">
+<button class="mode" onclick="startQuick()"><b>⚡ بازی سریع</b><span>بازی با کامپیوتر، بهترین از ۵ دور</span></button>
+<button class="mode" onclick="go('two')"><b>👥 دو نفره</b><span>دو بازیکن روی یک دستگاه</span></button>
+<button class="mode online-mode" onclick="go('online')"><b>🌐 بازی آنلاین</b><span>دو بازیکن با کد اتاق — بهترین از ۵</span></button>
+<button class="mode" onclick="go('offline')"><b>🏆 جام‌های AI</b><span>محلی، استانی، کشوری و جام جهانی — کاملاً آفلاین</span></button>
+
+</div>
+<div class="card">
+<h3>📈 پیشرفت شما</h3>
+<div class="stats">
+<div class="stat">Level<b id="level">1</b></div><div class="stat">برد<b id="wins">0</b></div><div class="stat">باخت<b id="losses">0</b></div><div class="stat">🔥 Streak<b id="streak">0</b></div>
+</div>
+<p class="muted">XP: <span id="xpText">0/100</span></p><div class="bar"><i id="xpBar"></i></div>
+</div>
+</section>
+
+
+<section id="offline" class="screen">
+<div class="card hero"><div class="icons">🤖 🏆 🌍</div><h2>جام‌های AI</h2><p class="muted">۴ جام با سختی متفاوت؛ تمام مسابقات آفلاین و مقابل هوش مصنوعی.</p></div>
+<div class="grid menu-grid">
+<button class="mode" onclick="startAITournament('local')"><b>🏘️ جام محلی</b><span>سطح آسان — ۴ نفره</span></button>
+<button class="mode" onclick="startAITournament('province')"><b>🏙️ جام استانی</b><span>سطح متوسط — ۸ نفره</span></button>
+<button class="mode" onclick="startAITournament('country')"><b>🇮🇷 جام کشوری</b><span>سطح سخت — ۱۶ نفره</span></button>
+<button class="mode" onclick="startAITournament('global')"><b>🌐 جام جهانی</b><span>سطح خیلی سخت — ۳۲ نفره</span></button>
+</div></section>
+
+<section id="customize" class="screen">
+  <div class="card hero">
+    <div class="icons">👤🎨🖼️</div>
+    <h2>شخصی‌سازی پروفایل</h2>
+    <p class="muted">قاب‌ها، استایل‌ها و آواتارهای خریداری‌شده را انتخاب کن.</p>
+  </div>
+  <div class="card">
+    <h3>👤 پیش‌نمایش</h3>
+    <div id="customPreview" class="profile"></div>
+  </div>
+  <div class="card">
+    <h3>🖼️ قاب پروفایل</h3>
+    <div id="frameChoices" class="shop"></div>
+  </div>
+  <div class="card">
+    <h3>🎨 استایل</h3>
+    <div id="styleChoices" class="shop"></div>
+  </div>
+  <div class="card">
+    <h3>🌈 تم</h3>
+    <div id="themeChoices" class="shop"></div>
+  </div>
+</section>
+
+<section id="profile" class="screen">
+<div class="card">
+<div class="profile"><div id="profileAvatar" class="avatar">😎</div><div><h2 id="profileName">Mehdi</h2><p class="muted">RPS Champion</p><input id="nameInput" placeholder="نام بازیکن"></div></div>
+<button class="btn" style="margin-top:12px" onclick="saveName()">💾 ذخیره نام</button><button class="btn purple" style="margin-top:12px" onclick="go('customize')">🎨 شخصی‌سازی پروفایل</button>
+</div>
+<div class="card"><h2>📊 آمار</h2><p>🏅 رنک: <span class="rank-badge" id="rankName">Bronze I</span> <span class="muted" id="rankPts">0 RP</span></p><div class="stats"><div class="stat">بازی<b id="games">0</b></div><div class="stat">برد<b id="wins2">0</b></div><div class="stat">باخت<b id="losses2">0</b></div><div class="stat">تروفی<b id="trophies2">0</b></div></div></div>
+
+<div class="card"><h2>🏅 دستاوردها</h2><div id="achievementsBox"></div></div>
+<div class="card"><h2>🎯 مأموریت‌ها</h2><div id="missionsBox"></div></div>
+</section>
+
+<section id="single" class="screen">
+<div class="card">
+<h2>⚡ بازی سریع</h2>
+<div class="scoreboard"><div class="scorebox">👤 <span id="singleName">Mehdi</span><div id="ss1" class="big">0</div></div><div class="vs">VS</div><div class="scorebox">🤖 CPU<div id="ss2" class="big">0</div></div></div>
+<div id="singleStatus" class="status">انتخاب کن</div>
+<div class="choices"><button class="choice" onclick="singleChoose('سنگ')">🪨<span>سنگ</span></button><button class="choice" onclick="singleChoose('کاغذ')">📄<span>کاغذ</span></button><button class="choice" onclick="singleChoose('قیچی')">✂️<span>قیچی</span></button></div>
+<div class="row" style="margin-top:12px"><button id="singleReset" class="btn gray" onclick="resetSingle()">🔄 مسابقه جدید</button><button class="btn purple" onclick="chooseDifficulty()">🤖 سختی AI</button></div>
+</div>
+</section>
+
+<section id="two" class="screen">
+<div class="card">
+<h2>👥 دو نفره — بهترین از ۵</h2>
+<div class="scoreboard"><div class="scorebox">👤 بازیکن ۱<div id="ts1" class="big">0</div></div><div class="vs">VS</div><div class="scorebox">👤 بازیکن ۲<div id="ts2" class="big">0</div></div></div>
+<div id="twoStatus" class="status">بازیکن ۱ انتخاب کند</div>
+<div class="choices"><button class="choice" onclick="twoChoose('سنگ')">🪨<span>سنگ</span></button><button class="choice" onclick="twoChoose('کاغذ')">📄<span>کاغذ</span></button><button class="choice" onclick="twoChoose('قیچی')">✂️<span>قیچی</span></button></div>
+</div>
+</section>
+
+
+<section id="online" class="screen">
+<style>
+.online-hero{background:radial-gradient(circle at 80% 20%,rgba(59,130,246,.24),transparent 42%),radial-gradient(circle at 20% 80%,rgba(139,92,246,.22),transparent 45%),linear-gradient(135deg,#101827,#0b1220);border:1px solid #334b70}
+.online-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.online-panel{background:rgba(2,6,23,.42);border:1px solid #26364f;border-radius:18px;padding:16px}
+.online-panel input{width:100%;padding:13px;border-radius:12px;border:1px solid #334155;background:#0b1423;color:#fff;font-size:16px;margin:6px 0}
+.online-code{font-size:30px;font-weight:1000;letter-spacing:6px;text-align:center;padding:14px;border-radius:15px;background:#020617;border:1px dashed #4f6b95;margin:12px 0;direction:ltr}
+.online-status{min-height:54px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;border-radius:14px;background:#0b1423;border:1px solid #26364f;margin:12px 0;font-weight:800}
+.online-score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:12px 0}.online-player{padding:14px;border-radius:16px;background:#0b1423;border:1px solid #26364f;text-align:center}.online-player b{display:block;font-size:24px;margin-top:4px}.online-vs{font-weight:1000;color:#94a3b8}
+.online-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.online-choice{border:1px solid #334155;border-radius:17px;background:#101827;color:#fff;padding:15px;font-size:31px;cursor:pointer}.online-choice span{display:block;font-size:13px;margin-top:4px}.online-choice:disabled{opacity:.4;cursor:not-allowed}
+.online-log{max-height:180px;overflow:auto;font-size:13px;color:#cbd5e1}.online-log div{padding:7px;border-bottom:1px solid #1e293b}
+.day-mode .online-panel,.day-mode .online-player,.day-mode .online-status,.day-mode .online-code{background:#f8fafc;color:#172033;border-color:#d6deea}.day-mode .online-choice{background:#fff;color:#172033;border-color:#cbd5e1}.day-mode .online-log{color:#475569}
+@media(max-width:700px){.online-grid{grid-template-columns:1fr}.online-choices{grid-template-columns:repeat(3,1fr)}.online-code{font-size:24px;letter-spacing:4px}}
+</style>
+<div class="card hero online-hero">
+  <div class="icons">🌐 ⚡ 🪨📄✂️</div>
+  <h2>بازی آنلاین دو نفره</h2>
+  <p class="muted">یک کد اتاق بساز، کد را برای دوستت بفرست و از دو دستگاه بازی کنید.</p>
+</div>
+<div class="online-grid">
+  <div class="online-panel">
+    <h3>🚪 ورود به اتاق</h3>
+    <label class="muted">نام شما</label>
+    <input id="onlineName" maxlength="24" placeholder="نام بازیکن">
+    <label class="muted">کد اتاق</label>
+    <input id="onlineRoom" maxlength="8" placeholder="مثلاً RPS7" style="direction:ltr;text-transform:uppercase">
+    <div class="row">
+      <button class="btn orange" onclick="onlineConnect()">🔗 اتصال</button>
+      <button class="btn gray" onclick="onlineNewCode()">🎲 کد جدید</button>
+    </div>
+    <div id="onlineRoomCode" class="online-code">----</div>
+    <button class="btn purple" style="width:100%" onclick="onlineCopyCode()">📋 کپی کد اتاق</button>
+  </div>
+  <div class="online-panel">
+    <h3>📡 وضعیت اتصال</h3>
+    <div id="onlineStatus" class="online-status">برای شروع، کد اتاق را وارد کن.</div>
+    <div class="online-score">
+      <div class="online-player">👤 <span id="onlineMeName">شما</span><b id="onlineMyScore">0</b></div>
+      <div class="online-vs">VS</div>
+      <div class="online-player">👤 <span id="onlineOppName">منتظر حریف...</span><b id="onlineOppScore">0</b></div>
+    </div>
+    <div class="row">
+      <button class="btn gray" onclick="onlineDisconnect()">⛔ قطع اتصال</button>
+      <button class="btn purple" onclick="onlineReset()">🔄 مسابقه جدید</button>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <h3>🪨📄✂️ انتخاب حرکت</h3>
+  <p class="muted">حرکت شما تا زمانی که هر دو بازیکن انتخاب نکنند برای حریف نمایش داده نمی‌شود.</p>
+  <div class="online-choices">
+    <button class="online-choice" data-online-move="rock" onclick="onlineMove('rock')">🪨<span>سنگ</span></button>
+    <button class="online-choice" data-online-move="paper" onclick="onlineMove('paper')">📄<span>کاغذ</span></button>
+    <button class="online-choice" data-online-move="scissors" onclick="onlineMove('scissors')">✂️<span>قیچی</span></button>
+  </div>
+</div>
+<div class="card"><h3>📜 گزارش بازی</h3><div id="onlineLog" class="online-log"></div></div>
+</section>
+
+<section id="tSetup" class="screen">
+<div class="card"><h2>🏆 ساخت تورنمنت</h2><p class="muted">هر مسابقه تا ۳ برد است.</p><div class="row"><button class="btn orange" onclick="makeNames(4)">۴ نفره</button><button class="btn orange" onclick="makeNames(8)">۸ نفره</button><button class="btn orange" onclick="makeNames(16)">۱۶ نفره</button></div></div>
+</section>
+
+<section id="names" class="screen">
+<div class="card"><h2>✏️ نام بازیکنان</h2><div id="nameGrid" class="namegrid"></div><button class="btn green" style="margin-top:14px" onclick="beginTournament()">🏆 شروع تورنمنت</button></div>
+</section>
+
+<section id="tournament" class="screen"><div class="card"><div class="row" style="justify-content:space-between"><h2 id="roundTitle">براکت</h2><button class="btn gray" onclick="go('home')">خانه</button></div><div id="bracket" class="bracket"></div></div></section>
+
+<section id="tMatch" class="screen">
+<div class="card">
+<h2 id="tmTitle"></h2>
+<div class="scoreboard"><div class="scorebox">👤 <span id="tmP1"></span><div id="tmS1" class="big">0</div></div><div class="vs">VS</div><div class="scorebox">👤 <span id="tmP2"></span><div id="tmS2" class="big">0</div></div></div>
+<div id="tmStatus" class="status"></div>
+<div class="choices"><button class="choice" onclick="tmChoose('سنگ')">🪨<span>سنگ</span></button><button class="choice" onclick="tmChoose('کاغذ')">📄<span>کاغذ</span></button><button class="choice" onclick="tmChoose('قیچی')">✂️<span>قیچی</span></button></div>
+<button id="tmNext" class="btn green" style="display:none;width:100%;margin-top:12px" onclick="nextTournamentMatch()">ادامه ➜</button>
+</div>
+</section>
+
+<section id="champion" class="screen"><div class="card champ"><div class="cup">🏆</div><h2>قهرمان تورنمنت</h2><h1 id="champName"></h1><p>🎉 قهرمان شد و تروفی گرفت!</p><button class="btn orange" onclick="setupTournament()">تورنمنت جدید</button></div></section>
+
+<section id="shop" class="screen"><div class="card"><h2>🛒 فروشگاه</h2><p>با سکه وسایل تزئینی بخرید.</p><div class="shop" id="shopItems"></div></div></section>
+
+<section id="leaderboard" class="screen"><div class="card"><div class="row" style="justify-content:space-between"><h2>🏅 لیدربورد فصلی</h2><button class="btn gray" onclick="renderLeaders()">🔄 بروزرسانی</button></div><div id="leaders"></div><p class="muted">هر فصل ۳۰۰ بازی دارد؛ پس از بازی ۳۰۰، لیدربورد ریست و ۱۰ رتبه برتر همان فصل ثبت می‌شوند.</p></div></section>
+
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ===================== ذخیره بازی ===================== */
+const defaultData={name:'Mehdi',coins:100,trophies:0,xp:0,level:1,wins:0,losses:0,games:0,streak:0,owned:[]};
+let data=JSON.parse(localStorage.getItem('rpsArenaData')||'null')||defaultData; data.tournaments=data.tournaments||0; data.achievements=data.achievements||[]; data.missions=data.missions||{}; data.owned=data.owned||[]; data.selectedFrame=data.selectedFrame||''; data.selectedStyle=data.selectedStyle||''; data.selectedTheme=data.selectedTheme || (localStorage.getItem('rpsDayNight')==='day'?'light':'night'); data.avatar=data.avatar||'😎';
+function save(){localStorage.setItem('rpsArenaData',JSON.stringify(data));updateUI();}
+function updateUI(){
+  ['coins','trophies','level','wins','losses','streak','games'].forEach(id=>{if($(id))$(id).textContent=data[id]});
+  if($('wins2'))$('wins2').textContent=data.wins;if($('losses2'))$('losses2').textContent=data.losses;if($('trophies2'))$('trophies2').textContent=data.trophies;
+  if($('profileName'))$('profileName').textContent=data.name;if($('singleName'))$('singleName').textContent=data.name;
+  const need=data.level*100;$('xpText').textContent=data.xp+'/'+need;$('xpBar').style.width=Math.min(100,data.xp/need*100)+'%';
+}
+function $(id){return document.getElementById(id)}
+function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');updateUI();if(id==='shop')renderShop();if(id==='leaderboard')renderLeaders();if(id==='profile'){renderAchievements();renderMissions()}if(id==='customize')renderCustomize();}
+function toast(t){const x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>x.style.display='none',1800)}
+function gainXP(n){data.xp+=n;while(data.xp>=data.level*100){data.xp-=data.level*100;data.level++;data.coins+=3;toast('🎉 Level Up! +50 Coins')}save()}
+function recordWin(){data.wins++;data.games++;data.streak++;data.trophies+=2;data.coins+=5;gainXP(25)}
+function recordLoss(){data.losses++;data.games++;data.streak=0;data.coins+=5;gainXP(10)}
+updateUI();
+
+/* ===================== منطق بازی ===================== */
+function winnerOf(a,b){
+ if(a===b)return 0;
+ return ((a==='سنگ'&&b==='قیچی')||(a==='کاغذ'&&b==='سنگ')||(a==='قیچی'&&b==='کاغذ'))?1:2;
+}
+function randomMove(){return ['سنگ','کاغذ','قیچی'][Math.floor(Math.random()*3)]}
+
+/* ===================== تک نفره ===================== */
+let s1=0,s2=0,quickGameRecorded=false;
+function startQuick(){resetSingle();go('single')}
+function resetSingle(){s1=0;s2=0;quickGameRecorded=false;$('ss1').textContent=0;$('ss2').textContent=0;$('singleStatus').textContent='انتخاب کن'}
+function finishQuickGame(){
+ if(quickGameRecorded)return; quickGameRecorded=true;
+ if(s1>=3){ addWinReward(aiDifficulty==='سخت'?1.2:1); $('singleStatus').textContent='🏆 تو کل بازی را بردی!'; }
+ else if(s2>=3){ addLossReward(); $('singleStatus').textContent='🤖 CPU کل بازی را برد!'; }
+ save();
+}
+function singleChoose(c){
+ if(s1>=3||s2>=3)return;
+ const cpu=aiMove(c),r=winnerOf(c,cpu);
+ if(r===1){s1++;$('singleStatus').textContent=`🏆 این دور را بردی! ${c} در برابر ${cpu}`;}
+ else if(r===2){s2++;$('singleStatus').textContent=`🤖 این دور را CPU برد! ${c} در برابر ${cpu}`;}
+ else $('singleStatus').textContent=`🤝 این دور مساوی — هر دو ${c}`;
+ $('ss1').textContent=s1;$('ss2').textContent=s2;
+ if(s1>=3||s2>=3)finishQuickGame();
+}
+
+/* ===================== دو نفره ===================== */
+let two1=0,two2=0,twoC1='';
+function twoChoose(c){
+ if(two1>=3||two2>=3)return;
+ if(!twoC1){twoC1=c;$('twoStatus').textContent='🔒 انتخاب بازیکن ۱ ثبت شد؛ بازیکن ۲ انتخاب کند.';return}
+ const r=winnerOf(twoC1,c);
+ if(r===1){two1++;$('twoStatus').textContent='🏆 بازیکن ۱ این دور را برد!'}
+ else if(r===2){two2++;$('twoStatus').textContent='🏆 بازیکن ۲ این دور را برد!'}
+ else $('twoStatus').textContent='🤝 مساوی شد!';
+ twoC1='';$('ts1').textContent=two1;$('ts2').textContent=two2;
+ if(two1>=3||two2>=3)$('twoStatus').textContent+=(two1>=3?' بازیکن ۱ قهرمان شد!':' بازیکن ۲ قهرمان شد!');
+}
+
+/* ===================== تورنمنت ===================== */
+let size=4,players=[],round=[],next=[],mi=0,m1=0,m2=0,mc1='',matchDone=false;
+function setupTournament(){go('tSetup')}
+function makeNames(n){
+ size=n;$('nameGrid').innerHTML='';
+ for(let i=1;i<=n;i++){let inp=document.createElement('input');inp.id='n'+i;inp.placeholder='بازیکن '+i;inp.value='بازیکن '+i;$('nameGrid').appendChild(inp)}
+ go('names')
+}
+function beginTournament(){
+ players=[];for(let i=1;i<=size;i++)players.push(($('n'+i).value||('بازیکن '+i)).trim());
+ round=[...players];next=[];mi=0;renderBracket();go('tournament');setTimeout(startTMatch,350)
+}
+function roundName(n){return n===16?'مرحله اول — ۱۶ نفر':n===8?'یک‌چهارم نهایی':n===4?'نیمه‌نهایی':n===2?'فینال':'قهرمانی'}
+function renderBracket(){
+ $('roundTitle').textContent=roundName(round.length);
+ const b=$('bracket');b.innerHTML='';
+ const current=document.createElement('div');current.className='round';current.innerHTML='<h3>'+roundName(round.length)+'</h3>';
+ for(let i=0;i<round.length;i+=2){let m=document.createElement('div');m.className='match';m.innerHTML=`<b>${esc(round[i])}</b><br>🆚<br><b>${esc(round[i+1])}</b><small>مسابقه ${i/2+1}</small>`;current.appendChild(m)}b.appendChild(current);
+ let n=round.length/2;
+ while(n>=1){let col=document.createElement('div');col.className='round';col.innerHTML='<h3>'+roundName(n)+'</h3>';for(let i=0;i<n;i++){let m=document.createElement('div');m.className='match';m.innerHTML=`برنده ${i*2+1}<br>🆚<br>برنده ${i*2+2}`;col.appendChild(m)}b.appendChild(col);n=Math.floor(n/2)}
+}
+function esc(t){return t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function startTMatch(){
+ if(round.length===1){showChampion(round[0]);return}
+ const p1=round[mi*2],p2=round[mi*2+1];m1=0;m2=0;mc1='';matchDone=false;
+ $('tmP1').textContent=p1;$('tmP2').textContent=p2;$('tmS1').textContent=0;$('tmS2').textContent=0;$('tmTitle').textContent=`مسابقه ${mi+1}`;$('tmStatus').textContent=`${p1} انتخاب کند`;$('tmNext').style.display='none';go('tMatch')
+}
+function tmChoose(c){
+ if(matchDone)return;
+ if(!mc1){mc1=c;$('tmStatus').textContent='🔒 انتخاب اول ثبت شد؛ بازیکن دوم انتخاب کند.';return}
+ const r=winnerOf(mc1,c);if(r===1)m1++;else if(r===2)m2++;
+ $('tmS1').textContent=m1;$('tmS2').textContent=m2;mc1='';
+ if(r===0)$('tmStatus').textContent='🤝 مساوی';
+ else $('tmStatus').textContent=r===1?'🏆 این دور را بازیکن اول برد!':'🏆 این دور را بازیکن دوم برد!';
+ if(m1>=3||m2>=3){
+   matchDone=true;const w=m1>=3?$('tmP1').textContent:$('tmP2').textContent;next.push(w);
+   data.coins+=5;gainXP(15);save();$('tmStatus').textContent='🏆 برنده مسابقه: '+w;$('tmNext').style.display='block';
+ }
+}
+function nextTournamentMatch(){
+ mi++;
+ if(mi<round.length/2){startTMatch();return}
+ if(next.length===1){showChampion(next[0]);return}
+ round=[...next];next=[];mi=0;renderBracket();go('tournament');setTimeout(startTMatch,350)
+}
+function showChampion(n){$('champName').textContent=n;data.trophies+=10;data.coins+=25;gainXP(50);save();go('champion')}
+
+/* ===================== پروفایل ===================== */
+function saveName(){const n=$('nameInput').value.trim();if(n){data.name=n;save();toast('✅ نام ذخیره شد')}}
+$('nameInput').value=data.name;
+
+/* ===================== فروشگاه ===================== */
+const items=[
+ ['🥇','قاب طلایی',150,'frame'],['🔥','قاب آتش',250,'frame'],['💎','قاب الماسی',400,'frame'],
+ ['⚡','قاب برق',300,'frame'],['👑','قاب تاج قهرمان',700,'frame'],['🌌','قاب کهکشانی',900,'frame'],
+ ['🎨','استایل نئون',350,'style'],['🧊','استایل یخی',450,'style'],['🔥','استایل آتشین',550,'style'],
+ ['🤖','استایل سایبری',700,'style'],['🌙','تم شب',300,'theme'],['☀️','تم روشن',300,'theme'],
+ ['🎁','جعبه معمولی',200,'box'],['🎁','جعبه کمیاب',600,'box'],['💠','جعبه حماسی',1200,'box']
+];
+function renderShop(){
+ const s=$('shopItems');s.innerHTML='';
+ items.forEach((it,i)=>{const owned=data.owned.includes(i);const d=document.createElement('div');d.className='item';d.innerHTML=`<div class="emoji">${it[0]}</div><h3>${it[1]}</h3><span class="badge">${it[3]}</span><p>🪙 ${it[2]}</p><button class="btn ${owned?'gray':'orange'}" ${owned?'disabled':''} onclick="buy(${i})">${owned?'✅ خریداری شد':'خرید'}</button>`;s.appendChild(d)})
+}
+function buy(i){
+ if(data.owned.includes(i))return;
+ const price=items[i][2];if(data.coins<price){toast('❌ سکه کافی نیست');return}
+ data.coins-=price;data.owned.push(i);save();renderShop();toast('🛒 خرید انجام شد!')
+}
+
+/* ===================== رتبه‌بندی ===================== */
+/* ===================== جعبه جایزه و شخصی‌سازی ===================== */
+const frameMap={0:'🥇',1:'🔥',2:'💎',3:'⚡',4:'👑',5:'🌌'};
+const styleMap={6:'نئون',7:'یخی',8:'آتشین',9:'سایبری'};
+const themeMap={10:'night',11:'light'};
+
+function openRewardBox(index){
+  const boxName=items[index][1];
+  const roll=Math.random();
+  let reward;
+  if(index===12){ reward=roll<0.65?'coins':roll<0.85?6:10; }
+  else if(index===13){ reward=roll<0.45?'coins':roll<0.75?7:roll<0.9?8:Math.floor(6+Math.random()*4); }
+  else { reward=roll<0.35?'coins':roll<0.6?8:roll<0.82?9:Math.floor(6+Math.random()*4); }
+  if(reward==='coins'){
+    const amount= index===12?300:index===13?800:1500;
+    data.coins+=amount;
+    toast('🎁 '+boxName+' باز شد: +'+amount+' 🪙');
+  }else{
+    if(!data.owned.includes(reward)) data.owned.push(reward);
+    toast('🎁 '+boxName+' باز شد: '+items[reward][0]+' '+items[reward][1]);
+  }
+  save();
+}
+
+function renderCustomize(){
+  const p=$('customPreview'); if(!p)return;
+  const frame=data.selectedFrame;
+  const style=data.selectedStyle;
+  const theme=data.selectedTheme;
+  const catalog=window.items||items;
+  p.innerHTML=`<div id="customAvatar" class="avatar">${data.avatar||'😎'}</div><div><h2>${esc(data.name)}</h2><p class="muted">${style?esc(style):'RPS Champion'}</p><span class="badge">${frame?esc(frame):'قاب پیش‌فرض'}</span></div>`;
+  paintAvatar($('customAvatar'));
+  const f=$('frameChoices'), st=$('styleChoices'), th=$('themeChoices');
+  f.innerHTML='';
+  const ownedFrames=catalog.map((x,i)=>[x,i]).filter(([x,i])=>x[3]==='frame' && data.owned.includes(i));
+  ownedFrames.forEach(([x,i])=>{
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<div class="emoji">${x[0]}</div><h3>${x[1]}</h3><button class="btn ${data.selectedFrame===x[1]?'green':'orange'}" onclick="equipFrame(${i})">${data.selectedFrame===x[1]?'✅ مجهز':'انتخاب'}</button>`;
+    f.appendChild(d);
+  });
+  if(!ownedFrames.length) f.innerHTML='<p class="muted">هنوز قاب نخریده‌ای. از فروشگاه خرید کن.</p>';
+  st.innerHTML='';
+  const ownedStyles=catalog.map((x,i)=>[x,i]).filter(([x,i])=>x[3]==='style' && data.owned.includes(i));
+  ownedStyles.forEach(([x,i])=>{
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<div class="emoji">${x[0]}</div><h3>${x[1]}</h3><button class="btn ${data.selectedStyle===x[1]?'green':'orange'}" onclick="equipStyle(${i})">${data.selectedStyle===x[1]?'✅ مجهز':'انتخاب'}</button>`;
+    st.appendChild(d);
+  });
+  if(!ownedStyles.length) st.innerHTML='<p class="muted">هنوز استایلی نخریده‌ای.</p>';
+  th.innerHTML='';
+  const ownedThemes=catalog.map((x,i)=>[x,i]).filter(([x,i])=>x[3]==='theme' && data.owned.includes(i));
+  ownedThemes.forEach(([x,i])=>{
+    const d=document.createElement('div');d.className='item';
+    const active=(i===11&&data.selectedTheme==='light')||(i===10&&data.selectedTheme==='night');
+    d.innerHTML=`<div class="emoji">${x[0]}</div><h3>${x[1]}</h3><button class="btn ${active?'green':'orange'}" onclick="equipTheme(${i})">${active?'✅ مجهز':'انتخاب'}</button>`;
+    th.appendChild(d);
+  });
+  if(!ownedThemes.length) th.innerHTML='<p class="muted">تم قابل انتخابی نخریده‌ای.</p>';
+  applyCustomization();
+}
+function frameClass(name){
+  const map={'قاب طلایی':'frame-gold','قاب آتش':'frame-fire','قاب الماسی':'frame-diamond','قاب برق':'frame-electric','قاب تاج قهرمان':'frame-crown','قاب کهکشانی':'frame-galaxy','قاب سیاره‌ای':'frame-planet','قاب موج آبی':'frame-ocean','قاب شکوفه':'frame-flower','قاب شهاب':'frame-meteor','قاب شیر طلایی':'frame-lion','قاب اژدها':'frame-dragon','قاب تار عنکبوت':'frame-web','قاب برگ‌های سلطنتی':'frame-leaf','قاب کریستالی طرح‌دار':'frame-crystal','قاب مارپیچ':'frame-spiral','قاب جنگجوی افسانه‌ای':'frame-warrior'};
+  return map[name]||'';
+}
+function paintAvatar(el){
+  if(!el)return;
+  el.classList.remove('profile-frame','frame-gold','frame-fire','frame-diamond','frame-electric','frame-crown','frame-galaxy','frame-planet','frame-ocean','frame-flower','frame-meteor','frame-lion','frame-dragon','frame-web','frame-leaf','frame-crystal','frame-spiral','frame-warrior');
+  const cls=frameClass(data.selectedFrame);
+  if(cls)el.classList.add('profile-frame',cls);
+  el.textContent=data.avatar||'😎';
+}
+function equipFrame(i){const catalog=window.items||items;if(!catalog[i])return;data.selectedFrame=catalog[i][1];save();renderCustomize();toast('🖼️ '+data.selectedFrame+' فعال شد')}
+function equipStyle(i){const catalog=window.items||items;if(!catalog[i])return;data.selectedStyle=catalog[i][1];save();renderCustomize();toast('🎨 '+data.selectedStyle+' فعال شد')}
+function equipTheme(i){const catalog=window.items||items;if(!catalog[i])return;data.selectedTheme=(i===11?'light':'night');save();renderCustomize();toast(data.selectedTheme==='light'?'☀️ حالت روز فعال شد':'🌙 حالت شب فعال شد')}
+function applyCustomization(){
+  paintAvatar($('profileAvatar'));
+  paintAvatar($('customAvatar'));
+  const day=data.selectedTheme==='light';
+  document.body.classList.toggle('day-mode',day);
+  localStorage.setItem('rpsDayNight',day?'day':'night');
+}
+
+/* ===================== سیستم‌های آفلاین جدید ===================== */
+let aiDifficulty='متوسط';
+let achievements = data.achievements || [];
+let missions = data.missions || {};
+let challengeWins = data.challengeWins || 0;
+
+const achievementList=[
+ ['first','🥉 اولین برد',1,'wins'],['ten','🥈 ۱۰ برد',10,'wins'],['fifty','🥇 ۵۰ برد',50,'wins'],['hundred','💯 ۱۰۰ برد',100,'wins'],['fivehundred','🏅 ۵۰۰ بازی',500,'games'],['streak5','🔥 پنج برد پشت‌سرهم',5,'streak'],['streak10','🔥🔥 ده برد پشت‌سرهم',10,'streak'],['champ','👑 اولین قهرمانی',1,'trophies'],['tourn5','🏆 پنج تورنمنت',5,'tournaments'],['tourn10','🏆 ده تورنمنت',10,'tournaments'],['event10','🎟️ ده ایونت',10,'events'],['level10','💎 Level 10',10,'level'],['level25','💠 Level 25',25,'level'],['games1000','🚀 ۱۰۰۰ بازی',1000,'games']
+];
+
+function persistExtras(){
+ data.achievements=achievements;
+ data.missions=missions;
+ data.challengeWins=challengeWins;
+ save();
+}
+
+function unlockAchievement(id){
+ if(achievements.includes(id)) return;
+ achievements.push(id);
+ data.coins += 100;
+ toast('🏅 دستاورد باز شد! +100 🪙');
+ persistExtras();
+}
+
+function checkAchievements(){
+ if(data.wins>=1) unlockAchievement('first');
+ if(data.wins>=10) unlockAchievement('ten');
+ if(data.wins>=50) unlockAchievement('fifty');
+ if(data.streak>=5) unlockAchievement('streak5');
+ if(data.trophies>=10) unlockAchievement('champ');
+ if((data.tournaments||0)>=10) unlockAchievement('tourn10');
+ if(data.level>=10) unlockAchievement('level10');
+}
+
+function addWinReward(mult=1){
+ data.wins++; data.games++; data.streak++; data.trophies+=2;
+ data.coins += Math.round(20*mult);
+ gainXP(Math.round(25*mult));
+ checkAchievements();
+}
+
+function addLossReward(){
+ data.losses++; data.games++; data.streak=0;
+ data.coins += 5; gainXP(10); checkAchievements();
+}
+
+function aiMove(playerMove){
+ const moves=['سنگ','کاغذ','قیچی'];
+ if(aiDifficulty==='آسان') return Math.random()<0.35 ? counter(playerMove) : randomMove();
+ if(aiDifficulty==='سخت'){
+   // سخت: بیشتر اوقات ضد حرکت انتخاب می‌کند، ولی کاملاً قطعی نیست.
+   return Math.random()<0.72 ? counter(playerMove) : randomMove();
+ }
+ return Math.random()<0.50 ? counter(playerMove) : randomMove();
+}
+function counter(c){return c==='سنگ'?'کاغذ':c==='کاغذ'?'قیچی':'سنگ'}
+
+function chooseDifficulty(){
+ const v=prompt('سختی AI را وارد کن:\n1 = آسان\n2 = متوسط\n3 = سخت','2');
+ aiDifficulty=v==='1'?'آسان':v==='3'?'سخت':'متوسط';
+ toast('🤖 سختی AI: '+aiDifficulty);
+ startQuick();
+}
+
+function offlineChallenge(){
+ const v=prompt('تعداد برد لازم برای چالش؟ (پیشنهاد: 5)','5');
+ const n=Math.max(1,Math.min(20,parseInt(v)||5));
+ sessionStorage.setItem('rpsChallengeTarget',n);
+ challengeWins=0;
+ toast('🎯 چالش '+n+' برده شروع شد!');
+ chooseDifficulty();
+}
+
+
+function renderAchievements(){
+ let box=$('achievementsBox');
+ if(!box) return;
+ box.innerHTML=achievementList.map(a=>{
+   const [id,n,goal,key]=a;
+   let val=key==='wins'?data.wins:key==='streak'?data.streak:key==='trophies'?data.trophies:key==='level'?data.level:key==='games'?data.games:key==='events'?(data.events||0):(data.tournaments||0);
+   const done=achievements.includes(id);
+   return `<div class="leader"><b>${done?'🏅':'🔒'}</b><span>${n}<small class="muted"> ${Math.min(val,goal)}/${goal}</small></span><strong>${done?'باز شد':'قفل'}</strong></div>`;
+ }).join('');
+}
+
+function renderMissions(){
+ let box=$('missionsBox');
+ if(!box) return;
+ const list=[
+  ['win3','۳ برد بگیر',3,data.wins,'🪙 +150'],
+  ['play10','۱۰ بازی انجام بده',10,data.games,'🪙 +250'],
+  ['streak5m','۵ برد پشت‌سرهم',5,data.streak,'🪙 +300']
+ ];
+ box.innerHTML=list.map(m=>{
+   const done=!!missions[m[0]];
+   const reached=m[3]>=m[2];
+   return `<div class="leader"><b>${done||reached?'✅':'🎯'}</b><span>${m[1]}<small class="muted"> ${Math.min(m[3],m[2])}/${m[2]}</small></span><strong>${done?'گرفته شد':m[4]}</strong></div>`;
+ }).join('');
+}
+
+</script>
+
+<script>
+/* ===================== RANK / EVENTS / DAY NIGHT ===================== */
+(function(){
+ const ranks=[['Bronze I',0],['Bronze II',80],['Silver I',180],['Silver II',320],['Gold I',500],['Gold II',750],['Platinum I',1050],['Platinum II',1400],['Diamond I',1800],['Diamond II',2300],['Master',3000],['Grand Master',4000]];
+ data.rankPoints=data.rankPoints||0; data.events=data.events||0;
+ window.getRank=function(){let r=ranks[0];for(const x of ranks)if(data.rankPoints>=x[1])r=x;return r};
+ window.rankWin=function(){data.rankPoints+=12;save()}; window.rankLoss=function(){data.rankPoints=Math.max(0,data.rankPoints-4);save()};
+ window.toggleDayNight=function(){const day=!document.body.classList.contains('day-mode');data.selectedTheme=day?'light':'night';document.body.classList.toggle('day-mode',day);localStorage.setItem('rpsDayNight',day?'day':'night');save();toast(day?'☀️ حالت روز':'🌙 حالت شب')};
+ if(localStorage.getItem('rpsDayNight')==='day')document.body.classList.add('day-mode');
+ window.showEvents=function(){data.events=(data.events||0)+1;save();toast('🎟️ ایونت روزانه باز شد');go('home')};
+})();
+
+/* ===================== RPS Arena Myket Edition =====================
+   1000 local bot leaderboard + persistent boxes + 100-game rewards.
+   No external server is used for game progress/leaderboard.
+*/
+(function(){
+  const OLD=window.data;
+  if(!OLD) return;
+  const baseBots=[
+   'ShadowFox','Rock Titan','Paper King','ScissorX','Neon Wolf','RPS Master','Storm','Blaze','CyberAce','Dark Knight',
+   'Golden Hand','IceRock','Arena Pro','Quick Fingers','Phantom','Omega','Nova','RedComet','BlueTiger','NightRider'
+  ];
+  const suffix=['','X','Pro','77','_IR','2000','Prime','Max','One','Elite'];
+  function botName(i){ return baseBots[i%baseBots.length]+' '+suffix[Math.floor(i/baseBots.length)%suffix.length]+(i>=200?' #'+String(i+1).padStart(3,'0'):''); }
+  function initBots(){
+    if(!Array.isArray(data.botBoard)||data.botBoard.length!==1000){
+      data.botBoard=Array.from({length:1000},(_,i)=>({n:botName(i),base:40+((i*37)%520),t:40+((i*37)%520),games:0}));
+      save();
+    }
+    data.boxes=Object.assign({common:0,rare:0,epic:0,legendary:0},data.boxes||{});
+    data.milestone=(data.milestone||0)|0;
+    data.rewardClaimed=data.rewardClaimed||{};
+  }
+  initBots();
+
+  const oldSave=window.save;
+  window.save=function(){
+    data.botBoard=data.botBoard||[];
+    data.boxes=data.boxes||{common:0,rare:0,epic:0,legendary:0};
+    localStorage.setItem('rpsArenaData',JSON.stringify(data));
+    updateUI();
+  };
+
+  // Extra shop inventory. Existing items remain available.
+  const extraItems=[
+   ['🪐','قاب سیاره‌ای',650,'frame'],['🌊','قاب موج آبی',500,'frame'],['🌸','قاب شکوفه',450,'frame'],['☄️','قاب شهاب',800,'frame'],['🦁','قاب شیر طلایی',1100,'frame'],['🐉','قاب اژدها',1500,'frame'],['🕸️','قاب تار عنکبوت',700,'frame'],['🌿','قاب برگ‌های سلطنتی',850,'frame'],['🔷','قاب کریستالی طرح‌دار',1000,'frame'],['🌀','قاب مارپیچ',900,'frame'],['⚔️','قاب جنگجوی افسانه‌ای',1400,'frame'],
+   ['🟣','استایل بنفش نئونی',500,'style'],['🌊','استایل اقیانوسی',650,'style'],['☢️','استایل هکری',900,'style'],['👾','استایل آرکید',750,'style'],['✨','استایل ستاره‌ای',1000,'style'],
+   ['🌅','تم غروب',500,'theme'],['🌲','تم جنگل',550,'theme'],['🌌','تم فضایی',900,'theme'],['🏜️','تم کویری',450,'theme'],['🎮','تم آرکید',800,'theme'],
+   ['🎁','جعبه افسانه‌ای',2500,'box']
+  ];
+  window.items = items.concat(extraItems);
+
+  const boxDefs={
+   common:{name:'جعبه معمولی',icon:'🎁',coins:[100,350],chance:0.30},
+   rare:{name:'جعبه کمیاب',icon:'💎',coins:[250,800],chance:0.22},
+   epic:{name:'جعبه حماسی',icon:'💠',coins:[600,1800],chance:0.15},
+   legendary:{name:'جعبه افسانه‌ای',icon:'👑',coins:[1500,5000],chance:0.08}
+  };
+  function grantBox(type,count=1){ data.boxes[type]=(data.boxes[type]||0)+count; }
+  function rand(a,b){return Math.floor(a+Math.random()*(b-a+1));}
+  function randomCosmetic(){
+    const pool=[];
+    (window.items||[]).forEach((x,i)=>{if(x[3]==='frame'||x[3]==='style'||x[3]==='theme')pool.push(i)});
+    return pool.length?pool[rand(0,pool.length-1)]:null;
+  }
+  window.openStoredBox=function(type){
+    if(!data.boxes[type]){toast('❌ از این جعبه نداری');return;}
+    data.boxes[type]--;
+    const d=boxDefs[type]||boxDefs.common, r=Math.random();
+    if(r<d.chance){
+      const idx=randomCosmetic();
+      if(idx!==null){ if(!data.owned.includes(idx)) data.owned.push(idx); toast(d.icon+' آیتم ویژه گرفتی: '+window.items[idx][1]); }
+      else {data.coins+=rand(d.coins[0],d.coins[1]);toast(d.icon+' جایزه سکه‌ای گرفتی!')}
+    } else {
+      const amount=rand(d.coins[0],d.coins[1]); data.coins+=amount; toast(d.icon+' '+d.name+' باز شد: +'+amount+' 🪙');
+    }
+    save();renderShop();
+  };
+
+  function renderBoxes(){
+    const shop=$('shopItems'); if(!shop)return;
+    const panel=document.createElement('div'); panel.className='card'; panel.style.gridColumn='1/-1';
+    panel.innerHTML='<h2>🎁 جعبه‌های من</h2><p class="muted">جعبه‌ها مصرف می‌شوند و جایزه واقعی به موجودی اضافه می‌شود.</p><div id="myBoxes" class="shop"></div>';
+    shop.parentNode.insertBefore(panel,shop);
+    const b=$('myBoxes');
+    b.innerHTML=Object.keys(boxDefs).map(k=>{
+      const d=boxDefs[k]; return `<div class="item"><div class="emoji">${d.icon}</div><h3>${d.name}</h3><p>تعداد: <b>${data.boxes[k]||0}</b></p><button class="btn ${data.boxes[k]?'orange':'gray'}" ${data.boxes[k]?'':'disabled'} onclick="openStoredBox('${k}')">${data.boxes[k]?'باز کردن 🎁':'نداری'}</button></div>`;
+    }).join('');
+  }
+
+  window.renderShop=function(){
+    const s=$('shopItems'); if(!s)return; s.innerHTML='';
+    (window.items||[]).forEach((it,i)=>{
+      const d=document.createElement('div'); d.className='item';
+      if(it[3]==='frame')d.classList.add('pattern-frame');
+      if(it[3]==='box'){
+        let type=i==12?'common':i==13?'rare':i==14?'epic':'legendary';
+        d.innerHTML=`<div class="emoji">${it[0]}</div><h3>${it[1]}</h3><span class="badge">جعبه</span><p>🪙 ${it[2]}</p><button class="btn orange" onclick="buyBox('${type}',${it[2]})">خرید</button>`;
+      }else{
+        const owned=data.owned.includes(i); d.innerHTML=`<div class="emoji">${it[0]}</div><h3>${it[1]}</h3><span class="badge">${it[3]}</span><p>🪙 ${it[2]}</p><button class="btn ${owned?'gray':'orange'}" ${owned?'disabled':''} onclick="buyNewItem(${i})">${owned?'✅ خریداری شد':'خرید'}</button>`;
+      }
+      s.appendChild(d);
+    });
+    renderBoxes();
+  };
+  window.buyBox=function(type,price){
+    if(data.coins<price){toast('❌ سکه کافی نیست');return;}
+    data.coins-=price;grantBox(type);save();renderShop();toast('🎁 جعبه به موجودی اضافه شد!');
+  };
+  window.buyNewItem=function(i){
+    if(data.owned.includes(i))return; const price=window.items[i][2];
+    if(data.coins<price){toast('❌ سکه کافی نیست');return;}
+    data.coins-=price;data.owned.push(i);save();renderShop();toast('🛒 آیتم خریداری شد و به شخصی‌سازی اضافه شد!');
+  };
+
+  function advanceBots(){
+    const g=data.games||0;
+    data.botBoard.forEach((b,i)=>{b.games=g; b.t=b.base + Math.floor(g*(0.18+((i%17)/100)));});
+    // Keep the leaderboard varied while ensuring progress is visible.
+    data.botBoard.sort((a,b)=>b.t-a.t);
+  }
+  function milestoneRewards(){
+    const reached=Math.floor((data.games||0)/100);
+    while(data.milestone<reached){
+      data.milestone++;
+      // Rank 1 / 2 / 3 rewards are granted locally for each 100-game milestone.
+      data.coins+=250; grantBox('legendary',1); grantBox('epic',1);
+      data.coins+=600; grantBox('rare',1);
+      data.coins+=80; grantBox('common',2);
+      toast('🏆 '+(data.milestone*100)+' بازی! جایزه جدول: 🪙 +1900 و 🎁 جعبه‌ها');
+    }
+  }
+
+  // Replace rewards so every completed game advances bots and milestone tracking.
+  window.addWinReward=function(mult=1){
+    data.wins++;data.games++;data.streak++;data.trophies+=2;data.coins+=Math.round(20*mult);gainXP(Math.round(25*mult));
+    advanceBots();milestoneRewards();checkAchievements();rankWin();save();
+  };
+  window.addLossReward=function(){
+    data.losses++;data.games++;data.streak=0;data.coins+=5;gainXP(10);advanceBots();milestoneRewards();checkAchievements();save();
+  };
+  window.recordWin=window.addWinReward;
+  window.recordLoss=window.addLossReward;
+
+  window.renderLeaders=function(){
+    advanceBots();
+    const me={n:data.name||'Me',t:data.trophies||0,me:true};
+    advanceBots();
+    const list=[me,...data.botBoard].sort((a,b)=>b.t-a.t);
+    const leaders=$('leaders'); if(!leaders)return;
+    leaders.innerHTML=`<div class="card" style="margin:0 0 12px"><b>👥 1001 بازیکن محلی</b><span class="muted"> — ۱۰۰۰ حریف بات + شما</span><br><span class="muted">با هر بازی، پیشرفت جدول به‌صورت آفلاین ذخیره می‌شود.</span></div>`+
+      list.map((x,i)=>`<div class="leader" style="${x.me?'border:1px solid var(--orange);':''}"><b>${i<3?['🥇','🥈','🥉'][i]:(i+1)+'️⃣'}</b><span>${esc(x.n)}${x.me?' ⭐':''}</span><strong>🏆 ${x.t}</strong></div>`).join('');
+  };
+
+  // ===== RPS Arena Season Leaderboard v2 =====
+  data.seasonGames = Number(data.seasonGames||0);
+  data.seasonId = Number(data.seasonId||1);
+  data.botBoard = Array.isArray(data.botBoard) ? data.botBoard : [];
+  function ensure1000Bots(){
+    while(data.botBoard.length<1000){ const i=data.botBoard.length+1; data.botBoard.push({n:'Bot '+String(i).padStart(4,'0'),t:0,id:i}); }
+    if(data.botBoard.length>1000)data.botBoard=data.botBoard.slice(0,1000);
+  }
+  ensure1000Bots();
+  function resetSeasonLeaderboard(){
+    data.seasonId++; data.seasonGames=0; data.trophies=0; data.botBoard.forEach((b,i)=>b.t=0);
+    data.seasonTopRewards=[]; save(); toast('🔄 فصل جدید شروع شد؛ لیدربورد ریست شد!');
+  }
+  function rewardTop10(){
+    ensure1000Bots();
+    const list=[{n:data.name||'شما',t:data.trophies||0,me:true},...data.botBoard].sort((a,b)=>b.t-a.t);
+    const rewards=[1000,850,750,650,550,450,400,350,300,250];
+    data.lastSeasonTop10=list.slice(0,10).map((x,i)=>({rank:i+1,name:x.n,trophies:x.t,coins:rewards[i]}));
+    const myRank=list.findIndex(x=>x.me)+1;
+    if(myRank>=1 && myRank<=10){ data.coins += rewards[myRank-1]; toast('🏆 پایان فصل! رتبه '+myRank+' — جایزه '+rewards[myRank-1]+' 🪙'); }
+    else toast('🏆 پایان فصل! ۱۰ نفر برتر جایزه گرفتند.');
+    resetSeasonLeaderboard();
+  }
+  function advanceSeasonBots(){
+    ensure1000Bots();
+    data.botBoard.forEach((b,i)=>{
+      // deterministic but varied seasonal progression
+      const target=Math.max(0,Math.floor(data.seasonGames*(0.15+((i*37)%80)/100)));
+      b.t=Math.min(600,target + ((i*13+data.seasonGames)%7));
+    });
+  }
+  function countCompletedGame(){
+    data.seasonGames++;
+    advanceSeasonBots();
+    if(data.seasonGames>=300){rewardTop10();}
+  }
+  window.addWinReward=function(mult=1){
+    data.wins++;data.games++;data.streak++;data.trophies+=2;data.coins+=Math.max(1,Math.round(20*mult));gainXP(Math.max(1,Math.round(25*mult)));
+    countCompletedGame();checkAchievements();save();
+  };
+  window.addLossReward=function(){
+    data.losses++;data.games++;data.streak=0;data.coins+=2;gainXP(5);
+    countCompletedGame();checkAchievements();save();
+  };
+  window.recordWin=window.addWinReward; window.recordLoss=window.addLossReward;
+  window.renderLeaders=function(){
+    ensure1000Bots(); advanceSeasonBots();
+    const me={n:data.name||'شما',t:data.trophies||0,me:true};
+    const list=[me,...data.botBoard].sort((a,b)=>b.t-a.t); const leaders=$('leaders');if(!leaders)return;
+    const myRank=list.findIndex(x=>x.me)+1;
+    const last=data.lastSeasonTop10||[];
+    const lastBox=last.length?'<div class="card" style="margin:0 0 12px"><b>🎁 جوایز فصل قبل — ۱۰ نفر برتر</b><div class="leader"><span>رتبه‌های برتر</span><strong>'+last.map(x=>x.rank+'. '+esc(x.name)+' — '+x.coins+' 🪙').join(' | ')+'</strong></div></div>':'';
+    leaders.innerHTML='<div class="card" style="margin:0 0 12px"><b>فصل '+data.seasonId+'</b> — بازی‌های فصل: '+data.seasonGames+'/300<br><span class="muted">۱۰۰۰ بات + شما — رتبه شما: '+myRank+'</span></div>'+lastBox+list.map((x,i)=>'<div class="leader" style="'+(x.me?'border:2px solid var(--orange);':'')+'"><b>'+(i<3?['🥇','🥈','🥉'][i]:(i+1))+ '</b><span>'+esc(x.n)+(x.me?' ⭐':'')+'</span><strong>🏆 '+x.t+'</strong></div>').join('');
+  };
+  // ===== AI Cup system =====
+  const cupConfig={local:{title:'جام محلی',size:4,diff:'آسان'},province:{title:'جام استانی',size:8,diff:'متوسط'},country:{title:'جام کشوری',size:16,diff:'سخت'},global:{title:'جام جهانی',size:32,diff:'خیلی سخت'}};
+  let aiCup=null;
+  window.startAITournament=function(type){
+    const c=cupConfig[type]||cupConfig.local; aiCup={type,...c,round:1,totalRounds:Math.log2(c.size),wins:0,losses:0}; aiDifficulty=c.diff; renderAICup(); go('tMatch');
+  };
+  function renderAICup(){
+    const c=aiCup; $('tmTitle').textContent='🏆 '+c.title+' — مرحله '+c.round+' از '+c.totalRounds; $('tmP1').textContent=data.name||'شما'; $('tmP2').textContent='🤖 AI'; $('tmS1').textContent=0;$('tmS2').textContent=0;$('tmStatus').textContent='سطح AI: '+c.diff+' — انتخاب کن'; $('tmNext').style.display='none';
+  }
+  const oldTmChoose=window.tmChoose;
+  window.tmChoose=function(move){
+    if(!aiCup){return oldTmChoose(move)}
+    if(aiCup._busy)return; aiCup._busy=true;
+    const cpu=aiMove(move),r=winnerOf(move,cpu);
+    $('tmStatus').textContent=r===0?'🤝 این دور مساوی':r===1?'🏆 این دور را بردی!':'🤖 این دور را AI برد!';
+    setTimeout(()=>{
+      aiCup._busy=false;
+      if(r===1)aiCup.wins++; else if(r===2)aiCup.losses++;
+      if(aiCup.wins>=3||aiCup.losses>=3){
+        if(aiCup.wins>=3){ $('tmStatus').textContent='🏆 مسابقه را بردی!'; addWinReward(0.75); aiCup.round++; aiCup.wins=0;aiCup.losses=0;
+          if(aiCup.round>aiCup.totalRounds){ data.coins+=25;gainXP(40);save();$('champName').textContent=data.name||'شما';go('champion');aiCup=null;return;}
+          $('tmNext').style.display='block'; $('tmNext').textContent='مرحله بعد ➜'; $('tmNext').onclick=()=>{renderAICup();go('tMatch');};
+        }else{ addLossReward(); $('tmStatus').textContent='❌ از تورنمنت حذف شدی'; $('tmNext').style.display='block'; $('tmNext').textContent='بازگشت'; $('tmNext').onclick=()=>{aiCup=null;go('home')}; }
+      }
+    },350);
+  };
+
+  // Make profile show the actual selected avatar/frame state after purchases.
+  const oldUpdate=window.updateUI;
+  window.updateUI=function(){
+    oldUpdate();
+    if(window.getRank){const r=getRank();if($('rankName'))$('rankName').textContent=r[0];if($('rankPts'))$('rankPts').textContent=(data.rankPoints||0)+' RP';}
+    const av=$('profileAvatar'); if(av){paintAvatar(av);}
+  };
+  window.updateUI();
+})();
+</script>
+
+<script>
+/* ===== FINAL STABILITY PATCH — RPS Arena Release Candidate ===== */
+(function(){
+  // Never allow a broken screen transition to stop the game.
+  const _go=window.go;
+  window.go=function(id){
+    const el=document.getElementById(id);
+    if(!el){ console.warn('Missing screen:',id); return false; }
+    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    if(typeof updateUI==='function') updateUI();
+    if(id==='shop' && typeof renderShop==='function') renderShop();
+    if(id==='leaderboard' && typeof renderLeaders==='function') renderLeaders();
+    if(id==='profile'){ if(typeof renderAchievements==='function')renderAchievements(); if(typeof renderMissions==='function')renderMissions(); }
+    if(id==='customize' && typeof renderCustomize==='function')renderCustomize();
+    return true;
+  };
+
+  // Give all 1000 offline bots readable, unique names. Existing trophies are preserved.
+  const first=['Shadow','Storm','Blaze','Nova','Phantom','Titan','Raptor','Viper','Frost','Rocket','Dragon','Wolf','Lion','Falcon','Ace','Legend','Master','Ninja','Galaxy','Thunder','Inferno','Comet','Ghost','Hunter','Knight'];
+  const second=['RPS','Arena','Rock','Paper','Scissor','Pro','King','X','Prime','Max','Elite','Master','Champion','Player','Force','Star'];
+  function botName(i){
+    const a=first[i%first.length], b=second[Math.floor(i/first.length)%second.length];
+    return a+' '+b+' '+String(i+1).padStart(3,'0');
+  }
+  data.botBoard=Array.isArray(data.botBoard)?data.botBoard:[];
+  while(data.botBoard.length<1000) data.botBoard.push({n:botName(data.botBoard.length),t:0,id:data.botBoard.length+1});
+  data.botBoard=data.botBoard.slice(0,1000);
+  data.botBoard.forEach((b,i)=>{ b.id=b.id||i+1; if(!b.n || /^Bot\s*\d+$/i.test(b.n)) b.n=botName(i); b.t=Number(b.t)||0; });
+
+  // Stable seasonal bot progression; no random reshuffle every leaderboard open.
+  function updateSeasonBots(){
+    const g=Number(data.seasonGames)||0;
+    data.botBoard.forEach((b,i)=>{
+      const skill=(i*47)%101;
+      b.t=Math.max(0,Math.floor(g*(0.35+skill/150)) + ((i*17+data.seasonId*11)%9));
+    });
+  }
+  window.renderLeaders=function(){
+    const box=document.getElementById('leaders'); if(!box)return;
+    updateSeasonBots();
+    const me={n:data.name||'شما',t:Number(data.trophies)||0,me:true};
+    const list=[me].concat(data.botBoard).sort((a,b)=>b.t-a.t || String(a.n).localeCompare(String(b.n)));
+    const rank=list.findIndex(x=>x.me)+1;
+    const rewards=[1000,850,750,650,550,450,400,350,300,250];
+    const prev=(data.lastSeasonTop10||[]);
+    let html=`<div class="card leaderboard-head"><h3>🏆 فصل ${Number(data.seasonId)||1}</h3><p>🎮 بازی‌های فصل: <b>${Number(data.seasonGames)||0}/300</b></p><p class="muted">👥 ۱۰۰۰ بات + شما | رتبه فعلی شما: <b>${rank}</b></p></div>`;
+    if(prev.length){
+      html+=`<div class="card"><h3>🎁 ۱۰ نفر برتر فصل قبل</h3><div class="leader-grid">`;
+      prev.forEach(x=>html+=`<div class="leader"><b>${x.rank===1?'🥇':x.rank===2?'🥈':x.rank===3?'🥉':x.rank}</b><span>${esc(String(x.name))}</span><strong>${x.trophies} 🏆 · ${x.coins} 🪙</strong></div>`);
+      html+='</div></div>';
+    }
+    html+=`<div class="card"><h3>📊 جدول رتبه‌بندی</h3><div class="muted" style="margin-bottom:8px">هر بازی فقط یک بار به آمار فصل اضافه می‌شود.</div>`;
+    list.forEach((x,i)=>{
+      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
+      html+=`<div class="leader" style="${x.me?'border:2px solid var(--orange);background:rgba(245,158,11,.12)':''}"><b>${medal}</b><span>${esc(String(x.n))}${x.me?' ⭐':''}</span><strong>🏆 ${x.t}</strong></div>`;
+    });
+    html+='</div>';
+    box.innerHTML=html;
+  };
+
+  // Fully independent AI cup controller. It does not depend on the old multiplayer tournament code.
+  const cups={
+    local:{title:'جام محلی',size:4,diff:'آسان',color:'🏘️'},
+    province:{title:'جام استانی',size:8,diff:'متوسط',color:'🏙️'},
+    country:{title:'جام کشوری',size:16,diff:'سخت',color:'🇮🇷'},
+    global:{title:'جام جهانی',size:32,diff:'خیلی سخت',color:'🌐'}
+  };
+  let cup=null;
+  function cupAiMove(player){
+    const r=Math.random();
+    if(cup.diff==='آسان') return r<0.25?counter(player):randomMove();
+    if(cup.diff==='متوسط') return r<0.50?counter(player):randomMove();
+    if(cup.diff==='سخت') return r<0.72?counter(player):randomMove();
+    return r<0.84?counter(player):randomMove();
+  }
+  function drawCup(){
+    if(!cup)return;
+    const title=document.getElementById('tmTitle'),p1=document.getElementById('tmP1'),p2=document.getElementById('tmP2'),s1=document.getElementById('tmS1'),s2=document.getElementById('tmS2'),st=document.getElementById('tmStatus'),next=document.getElementById('tmNext');
+    if(!title||!p1||!p2||!s1||!s2||!st||!next)return;
+    title.textContent=cup.info.color+' '+cup.info.title+' — مرحله '+cup.round+'/'+cup.totalRounds;
+    p1.textContent=data.name||'شما'; p2.textContent='🤖 AI'; s1.textContent=cup.wins; s2.textContent=cup.losses;
+    st.textContent='سطح: '+cup.info.diff+' — اول به ۳ برد، مرحله را می‌برد.'; next.style.display='none';
+  }
+  window.startAITournament=function(type){
+    const info=cups[type]||cups.local;
+    cup={info:info,round:1,totalRounds:Math.log2(info.size),wins:0,losses:0,busy:false};
+    aiDifficulty=info.diff;
+    window.go('tMatch');
+    drawCup();
+  };
+  window.tmChoose=function(move){
+    if(!cup){ return; }
+    if(cup.busy || cup.wins>=3 || cup.losses>=3)return;
+    cup.busy=true;
+    const cpu=cupAiMove(move),r=winnerOf(move,cpu);
+    const st=document.getElementById('tmStatus');
+    if(st) st.textContent=r===0?'🤝 مساوی — دوباره انتخاب کن':r===1?'🏆 این دور را بردی! '+move+' ← '+cpu:'🤖 AI این دور را برد! '+move+' ← '+cpu;
+    if(r===1)cup.wins++; else if(r===2)cup.losses++;
+    document.getElementById('tmS1').textContent=cup.wins; document.getElementById('tmS2').textContent=cup.losses;
+    setTimeout(function(){
+      cup.busy=false;
+      if(cup.wins<3 && cup.losses<3)return;
+      const next=document.getElementById('tmNext');
+      if(cup.wins>=3){
+        // One completed cup match = one completed game in the seasonal leaderboard.
+        addWinReward(0.75);
+        if(cup.round>=cup.totalRounds){
+          data.tournaments=(data.tournaments||0)+1;
+          data.trophies+=5; data.coins+=25; gainXP(40); save();
+          document.getElementById('champName').textContent=data.name||'شما';
+          cup=null; window.go('champion'); return;
+        }
+        cup.round++;cup.wins=0;cup.losses=0;
+        if(next){next.textContent='مرحله بعد ➜';next.style.display='block';next.onclick=function(){drawCup();};}
+      }else{
+        addLossReward();
+        if(st)st.textContent='❌ حذف شدی — برای برگشت به جام‌ها دکمه پایین را بزن.';
+        if(next){next.textContent='🏆 بازگشت به جام‌ها';next.style.display='block';next.onclick=function(){cup=null;window.go('offline');};}
+      }
+    },260);
+  };
+
+  // Stronger day/night application, including inputs, navigation and cards.
+  window.toggleDayNight=function(){
+    data.selectedTheme=document.body.classList.contains('day-mode')?'night':'light';
+    document.body.classList.toggle('day-mode',data.selectedTheme==='light');
+    localStorage.setItem('rpsDayNight',data.selectedTheme==='light'?'day':'night');
+    if(typeof save==='function')save();
+    toast(data.selectedTheme==='light'?'☀️ حالت روز فعال شد':'🌙 حالت شب فعال شد');
+  };
+  document.body.classList.toggle('day-mode',data.selectedTheme==='light');
+
+  // Make selected frame visibly color the inside of the avatar too.
+  const _paint=window.paintAvatar;
+  window.paintAvatar=function(el){
+    if(!el)return;
+    if(typeof _paint==='function')_paint(el);
+    const colors={
+      'قاب طلایی':['#f59e0b','#fde68a'],'قاب آتش':['#ef4444','#fecaca'],'قاب الماسی':['#38bdf8','#dff6ff'],
+      'قاب برق':['#a78bfa','#ede9fe'],'قاب تاج قهرمان':['#facc15','#fef3c7'],'قاب کهکشانی':['#8b5cf6','#ede9fe'],
+      'قاب سیاره‌ای':['#6366f1','#e0e7ff'],'قاب موج آبی':['#06b6d4','#cffafe'],'قاب شکوفه':['#ec4899','#fce7f3'],
+      'قاب شهاب':['#f97316','#ffedd5'],'قاب شیر طلایی':['#eab308','#fef9c3'],'قاب اژدها':['#dc2626','#fee2e2'],
+      'قاب تار عنکبوت':['#94a3b8','#e2e8f0'],'قاب برگ‌های سلطنتی':['#22c55e','#dcfce7'],'قاب کریستالی طرح‌دار':['#60a5fa','#dbeafe'],
+      'قاب مارپیچ':['#c084fc','#f3e8ff'],'قاب جنگجوی افسانه‌ای':['#64748b','#e2e8f0']
+    };
+    const c=colors[data.selectedFrame];
+    if(c){el.style.background=`radial-gradient(circle at 35% 30%,${c[1]} 0%,${c[0]} 58%,#111827 100%)`;el.style.setProperty('--frame-color',c[0]);}
+  };
+  if(typeof updateUI==='function')updateUI();
+  if(typeof renderLeaders==='function' && document.getElementById('leaderboard')?.classList.contains('active'))renderLeaders();
+})();
+</script>
+
+
+<script>
+/* ===== BOX INVENTORY FINAL FIX =====
+   Boxes are stored in a real inventory and can be opened from Profile.
+   This patch intentionally does not reset coins/progress. */
+(function(){
+  if(!window.data) return;
+  data.boxes = data.boxes || {};
+  data.boxes.common = Math.max(0, Number(data.boxes.common)||0);
+  data.boxes.rare = Math.max(0, Number(data.boxes.rare)||0);
+  data.boxes.epic = Math.max(0, Number(data.boxes.epic)||0);
+  data.boxes.legendary = Math.max(0, Number(data.boxes.legendary)||0);
+  data.owned = Array.isArray(data.owned) ? data.owned : [];
+
+  var BOXES={
+    common:{name:'جعبه معمولی',icon:'🎁',coins:[120,320],special:.25},
+    rare:{name:'جعبه کمیاب',icon:'💎',coins:[300,750],special:.35},
+    epic:{name:'جعبه حماسی',icon:'💠',coins:[700,1800],special:.45},
+    legendary:{name:'جعبه افسانه‌ای',icon:'👑',coins:[1800,5000],special:.60}
+  };
+  var NAME_TO_TYPE={
+    'جعبه معمولی':'common','جعبه کمیاب':'rare','جعبه حماسی':'epic','جعبه افسانه‌ای':'legendary',
+    'جعبه نادر+':'rare','جعبه حماسی+':'epic','جعبه افسانه‌ای+':'legendary','جعبه اسطوره‌ای':'legendary'
+  };
+  function num(v,d){v=Number(v);return Number.isFinite(v)?v:d;}
+  function saveBox(){
+    if(typeof window.save==='function') window.save();
+    else localStorage.setItem('rpsArenaData',JSON.stringify(data));
+  }
+  function rand(a,b){return Math.floor(a+Math.random()*(b-a+1));}
+  function cosmeticPool(){
+    var out=[];
+    (window.items||[]).forEach(function(it,i){
+      if(it && (it[3]==='frame'||it[3]==='style'||it[3]==='theme')) out.push(i);
+    });
+    return out;
+  }
+  function giveCosmetic(type){
+    var pool=cosmeticPool();
+    if(!pool.length) return false;
+    /* Prefer an item the player does not own, so boxes keep feeling useful. */
+    var fresh=pool.filter(function(i){return data.owned.indexOf(i)<0;});
+    var pick=(fresh.length?fresh:pool)[Math.floor(Math.random()*(fresh.length?fresh.length:pool.length))];
+    if(data.owned.indexOf(pick)<0) data.owned.push(pick);
+    var it=window.items[pick];
+    data.lastBoxReward={box:type,item:it[1],icon:it[0],at:Date.now()};
+    return true;
+  }
+
+  window.openStoredBox=function(type){
+    type=BOXES[type]?type:'common';
+    var count=num(data.boxes[type],0);
+    if(count<=0){toast('❌ از این جعبه نداری');renderProfileBoxes();return;}
+    data.boxes[type]=count-1;
+    var d=BOXES[type], special=Math.random()<d.special;
+    var message='';
+    if(special && giveCosmetic(type)){
+      var r=data.lastBoxReward;
+      message=d.icon+' '+d.name+' باز شد! '+r.icon+' '+r.item;
+    }else{
+      var amount=rand(d.coins[0],d.coins[1]);
+      data.coins=num(data.coins,0)+amount;
+      data.lastBoxReward={box:type,coins:amount,at:Date.now()};
+      message=d.icon+' '+d.name+' باز شد! +'+amount+' 🪙';
+    }
+    saveBox();
+    renderProfileBoxes();
+    if(typeof renderShop==='function') renderShop();
+    toast(message);
+  };
+
+  window.buyBox=function(type,price){
+    type=BOXES[type]?type:'common';
+    price=num(price,0);
+    if(num(data.coins,0)<price){toast('❌ سکه کافی نیست');return;}
+    data.coins-=price;
+    data.boxes[type]=num(data.boxes[type],0)+1;
+    saveBox();
+    renderProfileBoxes();
+    if(typeof renderShop==='function') renderShop();
+    toast('🎁 '+BOXES[type].name+' به جعبه‌های پروفایل اضافه شد!');
+  };
+
+  function boxCard(type){
+    var d=BOXES[type], count=num(data.boxes[type],0);
+    var el=document.createElement('div'); el.className='item';
+    el.style.position='relative';
+    el.innerHTML='<div class="emoji" style="font-size:42px">'+d.icon+'</div>'+
+      '<h3>'+d.name+'</h3><p style="font-size:18px">تعداد: <b>'+count+'</b></p>'+
+      '<button class="btn '+(count?'orange':'gray')+'" '+(count?'':'disabled')+'>'+(count?'باز کردن 🎁':'نداری')+'</button>';
+    if(count) el.querySelector('button').onclick=function(){openStoredBox(type);};
+    return el;
+  }
+
+  window.renderProfileBoxes=function(){
+    var host=document.getElementById('profileBoxes');
+    if(!host) return;
+    host.innerHTML='';
+    var title=document.createElement('div');
+    title.className='card';
+    title.innerHTML='<h2>🎁 جعبه‌های من</h2><p class="muted">جعبه‌هایی که از فروشگاه یا جایزه گرفته‌ای اینجا ذخیره می‌شوند. برای دریافت جایزه، روی «باز کردن» بزن.</p>';
+    host.appendChild(title);
+    var grid=document.createElement('div'); grid.className='shop';
+    ['common','rare','epic','legendary'].forEach(function(k){grid.appendChild(boxCard(k));});
+    host.appendChild(grid);
+    var total=['common','rare','epic','legendary'].reduce(function(a,k){return a+num(data.boxes[k],0);},0);
+    var last=data.lastBoxReward;
+    var info=document.createElement('div'); info.className='card';
+    var reward='';
+    if(last){ reward=last.item ? 'آخرین جایزه: '+last.icon+' '+last.item : 'آخرین جایزه: +'+last.coins+' 🪙'; }
+    info.innerHTML='<b>📦 مجموع جعبه‌ها: '+total+'</b>'+(reward?'<p class="muted">'+reward+'</p>':'');
+    host.appendChild(info);
+  };
+
+  /* Insert the inventory directly into Profile, once. */
+  if(!document.getElementById('profileBoxes')){
+    var profile=document.getElementById('profile');
+    if(profile){
+      var node=document.createElement('div'); node.id='profileBoxes';
+      var mission=profile.querySelector('#missionsBox');
+      var missionCard=mission ? mission.closest('.card') : null;
+      if(missionCard) profile.insertBefore(node,missionCard); else profile.appendChild(node);
+    }
+  }
+
+  /* Rebuild box buttons in the shop so every box, including +/mythic, uses inventory. */
+  var oldRenderShop=window.renderShop;
+  window.renderShop=function(){
+    if(typeof oldRenderShop==='function') oldRenderShop();
+    renderProfileBoxes();
+  };
+
+  /* Fix old index-based box buying code by name, regardless of catalog order. */
+  var oldBuyRelease=window.buyReleaseItem;
+  window.buyReleaseItem=function(i){
+    var it=(window.items||[])[i]; if(!it)return;
+    if(it[3]==='box'){
+      var type=NAME_TO_TYPE[it[1]]||'common';
+      buyBox(type,num(it[2],0));
+      return;
+    }
+    if(typeof oldBuyRelease==='function') oldBuyRelease(i);
+  };
+
+  /* Profile refresh hook. */
+  var oldUpdate=window.updateUI;
+  window.updateUI=function(){
+    if(typeof oldUpdate==='function') oldUpdate();
+    renderProfileBoxes();
+  };
+  renderProfileBoxes();
+})();
+</script>
+</body>
+</html>
+
+<script>
+/* ===== RELEASE V3 — LIVE MOVING LEADERBOARD + EXPANDED SHOP ===== */
+(function(){
+  if(!window.data) return;
+
+  // One-time clean season for the release version: leaderboard starts at 0 trophies.
+  if(localStorage.getItem('rpsLeaderboardV3')!=='1'){
+    data.seasonId=1; data.seasonGames=0; data.trophies=0; data.lastSeasonTop10=[];
+    if(Array.isArray(data.botBoard)) data.botBoard.forEach(function(b){b.t=0;b.games=0;});
+    localStorage.setItem('rpsLeaderboardV3','1');
+  }
+
+  // 1000 distinct names: a mix of human-style names and robot-style handles.
+  const human=['Ali','Arman','Amir','Reza','Sina','Nima','Mahan','Kian','Peyman','Soroush','Shayan','Arian','Rayan','Daniyal','Yasin','Ehsan','Sam','Navid','Milad','Pouya','Parsa','Kasra','Omid','Hamed','Mehran','Ramin','Farhad','Shahab','Behnam','Babak','Abolfazl','Mohammad','Hossein','Mostafa','Majid','Amirhossein','Matin','Morteza','Mohsen','Saman','Yeganeh','Sara','Mina','Negin','Roya','Ava','Sahar','Nazanin','Tara','Elahe','Maryam','Zahra','Hana','Aylin','Dorsa','Kimia','Setareh','Parisa','Shiva','Mahsa'];
+  const robot=['Robo','Cyber','Neo','Byte','Pixel','Quantum','Mecha','Droid','Bot','AI','Circuit','Chrome','Matrix','Zero','Omega','Nova','Titan','Vortex','Glitch','Photon','Laser','Core','Nano','Atlas','Vector','Pulse','Echo','Orbit','Apex','Binary','Syntax','Kernel','Proxy','Codec','Logic','Signal','Grid'];
+  const tags=['01','02','03','04','05','06','07','08','09','10','X','Prime','Max','Pro','Elite','Ultra','RX'];
+  function uniqueName(i){
+    if(i<human.length) return human[i]+' RPS';
+    const j=i-human.length;
+    if(j<robot.length) return robot[j]+'-RPS';
+    const h=human[j%human.length], r=robot[Math.floor(j/human.length)%robot.length], t=tags[Math.floor(j/(human.length*robot.length))%tags.length];
+    return h+' '+r+' '+t;
+  }
+  // This construction is mathematically unique for all 1000 entries.
+  const used={};
+  function makeUnique(i){
+    let n=uniqueName(i),k=1;
+    while(used[n]){n=uniqueName(i)+' '+(++k);}
+    used[n]=1; return n;
+  }
+  data.botBoard=Array.isArray(data.botBoard)?data.botBoard:[];
+  while(data.botBoard.length<1000) data.botBoard.push({n:makeUnique(data.botBoard.length),t:0,id:data.botBoard.length+1,games:0,skill:0});
+  data.botBoard=data.botBoard.slice(0,1000);
+  // Repair old duplicate/placeholder names.
+  const names={}; data.botBoard.forEach(function(b,i){b.id=b.id||i+1;b.t=Number(b.t)||0;b.games=Number(b.games)||0;b.skill=Number.isFinite(b.skill)?b.skill:((i*73)%100);if(!b.n||names[b.n]||/^Bot\s*\d+$/i.test(b.n))b.n=makeUnique(i);names[b.n]=1;});
+
+  // Each completed game makes bots actually gain/lose trophies, so positions move.
+  function moveBots(){
+    const g=Number(data.seasonGames)||0;
+    data.botBoard.forEach(function(b,i){
+      b.games=g;
+      const roll=Math.random();
+      const p=0.22+(b.skill/100)*0.56;
+      if(roll<p) b.t+=1;
+      if(Math.random()<0.055 && b.t>0) b.t-=1;
+      if(Math.random()<0.018) b.t+=2;
+      if(g===0)b.t=0;
+    });
+  }
+
+  // Count exactly one seasonal game for each completed match.
+  window.countCompletedGame=function(){
+    data.seasonGames=Number(data.seasonGames||0)+1;
+    moveBots();
+    if(data.seasonGames>=300 && typeof window.rewardTop10==='function') window.rewardTop10();
+    if(typeof save==='function') save();
+  };
+
+  // Rank shop: purchased rank gives a small permanent coin bonus on wins.
+  const rankShop=[
+    ['Bronze','🥉',0,0],['Silver','🥈',900,2],['Gold','🥇',1800,4],['Platinum','💠',3200,6],['Diamond','💎',5200,9],['Master','👑',8000,12],['Grand Master','🌟',12000,16],['Legend','🔥',18000,22]
+  ];
+  data.purchasedRank=data.purchasedRank||'Bronze';
+  data.rankBonus=Number(data.rankBonus||0);
+  window.buyRank=function(i){
+    const r=rankShop[i]; if(!r)return;
+    if(r[0]===data.purchasedRank){toast('✅ این رنک فعال است');return;}
+    if(data.coins<r[2]){toast('❌ سکه کافی نیست');return;}
+    data.coins-=r[2]; data.purchasedRank=r[0]; data.rankBonus=r[3];
+    save(); renderShop(); toast('👑 رنک '+r[0]+' خریداری شد — پاداش برد +'+r[3]+' سکه');
+  };
+
+  // Expanded release shop with many purchasable cosmetics.
+  const releaseItems=[
+    ['🟨','قاب خورشیدی',1250,'frame'],['🌋','قاب آتشفشانی',1800,'frame'],['🌊','قاب یخی قطبی',1600,'frame'],['🌈','قاب رنگین‌کمان',1450,'frame'],['🪐','قاب زحل',2200,'frame'],['🌑','قاب ماه تاریک',1900,'frame'],['☀️','قاب خورشیدی سلطنتی',2500,'frame'],['⚡','قاب صاعقه طلایی',2800,'frame'],['🦅','قاب عقاب',3200,'frame'],['🐺','قاب گرگ نقره‌ای',3000,'frame'],['🐲','قاب اژدهای شرقی',3600,'frame'],['👾','قاب گلیچ',2400,'frame'],['💀','قاب اسکلت نئون',2700,'frame'],['🧿','قاب چشم کیهانی',2900,'frame'],['🏆','قاب جام قهرمانی',5000,'frame'],
+    ['💜','استایل بنفش سلطنتی',1200,'style'],['🔥','استایل شعله',1500,'style'],['🌊','استایل موج',1300,'style'],['⚡','استایل صاعقه',1800,'style'],['🌈','استایل رنگین',1700,'style'],['🧬','استایل ژنتیک',2200,'style'],['🪐','استایل کیهانی',2500,'style'],['👑','استایل پادشاهی',3000,'style'],['💻','استایل کدنویس',2000,'style'],['🎯','استایل دقیق',1600,'style'],
+    ['🌃','تم نئون شب',1200,'theme'],['🌅','تم طلوع',1100,'theme'],['🌊','تم اقیانوس',1400,'theme'],['🌋','تم آتشفشان',1900,'theme'],['🌲','تم جنگل عمیق',1300,'theme'],['❄️','تم قطبی',1500,'theme'],['🪐','تم کیهانی',2200,'theme'],['🏆','تم قهرمانی',2800,'theme'],['🎆','تم جشن',1700,'theme'],['🕹️','تم رترو',1600,'theme'],
+    ['🎁','جعبه نادر+',1400,'box'],['💎','جعبه حماسی+',2600,'box'],['👑','جعبه افسانه‌ای+',5000,'box']
+  ];
+  window.items=(window.items||[]).concat(releaseItems);
+
+  // Box index is no longer fragile: identify by item name/type instead of hard-coded indices.
+  const boxByName={'جعبه معمولی':'common','جعبه کمیاب':'rare','جعبه حماسی':'epic','جعبه افسانه‌ای':'legendary','جعبه نادر+':'rare','جعبه حماسی+':'epic','جعبه افسانه‌ای+':'legendary'};
+  window.renderShop=function(){
+    const s=document.getElementById('shopItems');if(!s)return;s.innerHTML='';
+    const wrap=document.createElement('div');wrap.style.gridColumn='1/-1';
+    wrap.innerHTML='<div class="card"><h2>👑 فروشگاه رنک</h2><p class="muted">هر رنک خریداری‌شده، پاداش سکه بردهای بعدی را کمی بیشتر می‌کند.</p><div id="rankShopGrid" class="shop"></div></div>';
+    s.appendChild(wrap);
+    const rg=wrap.querySelector('#rankShopGrid');
+    rankShop.forEach(function(r,i){
+      const active=r[0]===data.purchasedRank;
+      const d=document.createElement('div');d.className='item';d.innerHTML='<div class="emoji">'+r[1]+'</div><h3>'+r[0]+'</h3><span class="badge">+'+r[3]+' 🪙 در برد</span><p>'+ (r[2]?'🪙 '+r[2]:'رایگان')+'</p><button class="btn '+(active?'gray':'orange')+'" '+(active?'disabled':'')+' onclick="buyRank('+i+')">'+(active?'✅ فعال':'خرید')+'</button>';rg.appendChild(d);
+    });
+    const title=document.createElement('div');title.style.gridColumn='1/-1';title.innerHTML='<div class="card"><h2>🎨 آیتم‌های ویژه</h2><p class="muted">قاب، استایل، تم و جعبه‌های جدید</p></div>';s.appendChild(title);
+    (window.items||[]).forEach(function(it,i){
+      const d=document.createElement('div');d.className='item';
+      const type=it[3];
+      if(type==='box'){
+        const bt=boxByName[it[1]]||'common';
+        d.innerHTML='<div class="emoji">'+it[0]+'</div><h3>'+it[1]+'</h3><span class="badge">جعبه</span><p>🪙 '+it[2]+'</p><button class="btn orange" onclick="buyBox(\''+bt+'\','+it[2]+')">خرید</button>';
+      }else{
+        const owned=data.owned.includes(i);
+        d.innerHTML='<div class="emoji">'+it[0]+'</div><h3>'+it[1]+'</h3><span class="badge">'+type+'</span><p>🪙 '+it[2]+'</p><button class="btn '+(owned?'gray':'orange')+'" '+(owned?'disabled':'')+' onclick="buyNewItem('+i+')">'+(owned?'✅ خریداری شد':'خرید')+'</button>';
+      }
+      s.appendChild(d);
+    });
+    if(typeof renderBoxes==='function')renderBoxes();
+  };
+
+  // Final win/loss accounting: one completed game, plus rank bonus on wins.
+  window.addWinReward=function(mult){
+    mult=Number(mult||1);data.wins++;data.games++;data.streak++;data.trophies+=2;
+    const bonus=Number(data.rankBonus)||0;
+    data.coins+=Math.max(1,Math.round(20*mult)+bonus);
+    if(typeof gainXP==='function')gainXP(Math.max(1,Math.round(25*mult)));
+    window.countCompletedGame(); if(typeof checkAchievements==='function')checkAchievements(); if(typeof save==='function')save();
+  };
+  window.addLossReward=function(){
+    data.losses++;data.games++;data.streak=0;data.coins+=2;
+    if(typeof gainXP==='function')gainXP(5);
+    window.countCompletedGame(); if(typeof checkAchievements==='function')checkAchievements(); if(typeof save==='function')save();
+  };
+  window.recordWin=window.addWinReward;window.recordLoss=window.addLossReward;
+
+  window.renderLeaders=function(){
+    const box=document.getElementById('leaders');if(!box)return;
+    const list=[{n:data.name||'شما',t:Number(data.trophies)||0,me:true}].concat(data.botBoard).sort(function(a,b){return Number(b.t)-Number(a.t)||String(a.n).localeCompare(String(b.n));});
+    const myRank=list.findIndex(function(x){return x.me;})+1;
+    let html='<div class="card"><h3>🏆 لیدربورد فصل '+(Number(data.seasonId)||1)+'</h3><p>🎮 بازی‌های انجام‌شده: <b>'+Number(data.seasonGames||0)+'/300</b></p><p class="muted">۱۰۰۰ ربات + شما · هر بازی باعث تغییر واقعی کاپ و جایگاه‌ها می‌شود.</p></div>';
+    html+='<div class="card"><h3>📊 جدول زنده</h3>';
+    list.forEach(function(x,i){const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);html+='<div class="leader" style="'+(x.me?'border:2px solid var(--orange);background:rgba(245,158,11,.12)':'')+'"><b>'+medal+'</b><span>'+esc(String(x.n))+(x.me?' ⭐':'')+'</span><strong>🏆 '+Number(x.t||0)+'</strong></div>';});
+    html+='</div>';box.innerHTML=html;
+  };
+
+  // Keep leaderboard at zero before the first completed game.
+  if(Number(data.seasonGames||0)===0){data.trophies=0;data.botBoard.forEach(function(b){b.t=0;});}
+  if(typeof save==='function')save();
+})();
+</script>
+
+<script>
+/* ===== FINAL RELEASE V4 — LEADERBOARD + SHOP OVERHAUL ===== */
+(function(){
+  if(!window.data) return;
+  var VERSION='rpsArenaReleaseV4';
+
+  /* ---------- CLEAN ONE-TIME RELEASE RESET ---------- */
+  if(localStorage.getItem(VERSION)!=='1'){
+    data.seasonId=1;
+    data.seasonGames=0;
+    data.trophies=0;
+    data.lastSeasonTop10=[];
+    data.games=Number(data.games)||0;
+    if(!Array.isArray(data.botBoard)) data.botBoard=[];
+    data.botBoard.forEach(function(b){b.t=0;b.games=0;});
+    data.purchasedRank='Bronze';
+    data.rankBonus=0;
+    localStorage.setItem(VERSION,'1');
+  }
+
+  /* ---------- 1000 GUARANTEED UNIQUE BOT NAMES ---------- */
+  var human=['Ali','Arman','Amir','Reza','Sina','Nima','Mahan','Kian','Peyman','Soroush','Shayan','Arian','Rayan','Daniyal','Yasin','Ehsan','Sam','Navid','Milad','Pouya','Parsa','Kasra','Omid','Hamed','Mehran','Ramin','Farhad','Shahab','Behnam','Babak','Abolfazl','Mohammad','Hossein','Mostafa','Majid','Matin','Morteza','Mohsen','Saman','Yeganeh','Sara','Mina','Negin','Roya','Ava','Sahar','Nazanin','Tara','Elahe','Maryam','Zahra','Hana','Aylin','Dorsa','Kimia','Parisa','Shiva','Mahsa','Asal','Baran','Mia','Noor'];
+  var robot=['Robo','Cyber','Neo','Byte','Pixel','Quantum','Mecha','Droid','AI','Circuit','Chrome','Matrix','Zero','Omega','Nova','Titan','Vortex','Glitch','Photon','Laser','Core','Nano','Atlas','Vector','Pulse','Echo','Orbit','Apex','Binary','Syntax','Kernel','Proxy','Codec','Logic','Signal','Grid','BotX','Android','CPU','ByteCore'];
+  var words=['RPS','Arena','Rock','Paper','Scissor','King','Pro','Prime','Max','Elite','Champion','Force','Star','Master','Hero','Legend','Strike','Rush','Battle','Clash'];
+  function uniqueBotName(i){
+    if(i<human.length) return human[i]+' RPS';
+    var j=i-human.length;
+    var a=robot[j%robot.length];
+    var b=words[Math.floor(j/robot.length)%words.length];
+    var n=Math.floor(j/(robot.length*words.length))+1;
+    return a+' '+b+' '+String(n).padStart(2,'0');
+  }
+  data.botBoard=Array.isArray(data.botBoard)?data.botBoard:[];
+  while(data.botBoard.length<1000) data.botBoard.push({});
+  data.botBoard=data.botBoard.slice(0,1000);
+  var used={};
+  data.botBoard.forEach(function(b,i){
+    b.id=i+1;
+    b.n=uniqueBotName(i);
+    b.t=Number.isFinite(Number(b.t))?Math.max(0,Math.floor(Number(b.t))):0;
+    b.games=Number.isFinite(Number(b.games))?Math.max(0,Math.floor(Number(b.games))):0;
+    b.skill=(i*37+17)%101;
+  });
+  /* Explicitly prove uniqueness and repair any theoretical collision. */
+  data.botBoard.forEach(function(b,i){
+    if(used[b.n]) b.n=b.n+' #'+String(i+1);
+    used[b.n]=true;
+  });
+
+  function safeNum(v,d){
+    var n=Number(v); return Number.isFinite(n)?n:d;
+  }
+
+  /* ---------- TRUE SEASON PROGRESSION ---------- */
+  function moveBotsOneGame(){
+    var g=safeNum(data.seasonGames,0);
+    data.botBoard.forEach(function(b,i){
+      b.games=g;
+      var skill=safeNum(b.skill,(i*37)%101);
+      var winChance=0.30+(skill/100)*0.45;
+      var roll=Math.random();
+      if(roll<winChance) b.t+=1;
+      else if(roll>0.965 && b.t>0) b.t-=1;
+      if(Math.random()<0.025) b.t+=2;
+      b.t=Math.max(0,Math.floor(safeNum(b.t,0)));
+    });
+  }
+  function seasonReward(){
+    var rewards=[1000,850,750,650,550,450,400,350,300,250];
+    var list=[{name:data.name||'شما',t:safeNum(data.trophies,0),me:true}].concat(data.botBoard.map(function(b){return {name:b.n,t:safeNum(b.t,0)};}));
+    list.sort(function(a,b){return b.t-a.t || String(a.name).localeCompare(String(b.name));});
+    data.lastSeasonTop10=list.slice(0,10).map(function(x,i){return {rank:i+1,name:x.name,trophies:x.t,coins:rewards[i]};});
+    var my=list.find(function(x){return x.me;});
+    if(my){
+      var pos=list.indexOf(my);
+      if(pos>=0 && pos<10) data.coins+=rewards[pos];
+    }
+    data.seasonId=safeNum(data.seasonId,1)+1;
+    data.seasonGames=0;
+    data.trophies=0;
+    data.botBoard.forEach(function(b){b.t=0;b.games=0;});
+    toast('🏆 فصل جدید شروع شد! لیدربورد از صفر شد.');
+  }
+  window.countCompletedGame=function(){
+    data.seasonGames=safeNum(data.seasonGames,0)+1;
+    moveBotsOneGame();
+    if(data.seasonGames>=300) seasonReward();
+    if(typeof window.save==='function') window.save();
+  };
+
+  /* ---------- CANONICAL WIN/LOSS: ONE GAME = ONE SEASON GAME ---------- */
+  window.addWinReward=function(mult){
+    mult=safeNum(mult,1);
+    data.wins=safeNum(data.wins,0)+1;
+    data.games=safeNum(data.games,0)+1;
+    data.streak=safeNum(data.streak,0)+1;
+    data.trophies=safeNum(data.trophies,0)+2;
+    var bonus=safeNum(data.rankBonus,0);
+    data.coins+=Math.max(1,Math.round(20*mult)+bonus);
+    data.rankPoints=safeNum(data.rankPoints,0)+12;
+    if(typeof gainXP==='function') gainXP(Math.max(1,Math.round(25*mult)));
+    window.countCompletedGame();
+    if(typeof checkAchievements==='function')checkAchievements();
+    if(typeof window.save==='function')window.save();
+  };
+  window.addLossReward=function(){
+    data.losses=safeNum(data.losses,0)+1;
+    data.games=safeNum(data.games,0)+1;
+    data.streak=0;
+    data.coins+=2;
+    data.rankPoints=Math.max(0,safeNum(data.rankPoints,0)-4);
+    if(typeof gainXP==='function')gainXP(5);
+    window.countCompletedGame();
+    if(typeof checkAchievements==='function')checkAchievements();
+    if(typeof window.save==='function')window.save();
+  };
+  window.recordWin=window.addWinReward;
+  window.recordLoss=window.addLossReward;
+
+  /* ---------- LEADERBOARD RENDER: NO NaN, LIVE ORDER, VISIBLE TROPHIES ---------- */
+  window.renderLeaders=function(){
+    var box=document.getElementById('leaders'); if(!box)return;
+    var me={n:data.name||'شما',t:safeNum(data.trophies,0),me:true};
+    var list=[me].concat(data.botBoard.map(function(b){return {n:b.n,t:safeNum(b.t,0),me:false};}));
+    list.sort(function(a,b){return b.t-a.t || String(a.n).localeCompare(String(b.n));});
+    var myRank=1;
+    for(var i=0;i<list.length;i++)if(list[i].me){myRank=i+1;break;}
+    var season=safeNum(data.seasonId,1), games=safeNum(data.seasonGames,0);
+    var html='<div class="card"><h3>🏆 لیدربورد فصل '+season+'</h3>'+
+      '<p>🎮 بازی‌های این فصل: <b>'+games+'/300</b></p>'+
+      '<p>👥 تعداد شرکت‌کنندگان: <b>1001</b> · رتبه شما: <b>'+myRank+'</b></p>'+
+      '<p class="muted">بعد از هر بازی، کاپ‌ها تغییر می‌کنند و جایگاه‌ها دوباره محاسبه می‌شوند.</p></div>';
+    if(Array.isArray(data.lastSeasonTop10)&&data.lastSeasonTop10.length){
+      html+='<div class="card"><h3>🎁 ۱۰ نفر برتر فصل قبل</h3>';
+      data.lastSeasonTop10.forEach(function(x){
+        html+='<div class="leader"><b>'+(x.rank<=3?['🥇','🥈','🥉'][x.rank-1]:x.rank)+'</b><span>'+esc(String(x.name))+'</span><strong>🏆 '+safeNum(x.trophies,0)+' · 🪙 '+safeNum(x.coins,0)+'</strong></div>';
+      });
+      html+='</div>';
+    }
+    html+='<div class="card"><h3>📊 جدول زنده</h3>';
+    list.forEach(function(x,i){
+      var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
+      html+='<div class="leader" style="'+(x.me?'border:2px solid var(--orange);background:rgba(245,158,11,.12)':'')+'">'+
+        '<b>'+medal+'</b><span>'+esc(String(x.n))+(x.me?' ⭐':'')+'</span><strong>🏆 '+safeNum(x.t,0)+'</strong></div>';
+    });
+    html+='</div>';
+    box.innerHTML=html;
+  };
+
+  /* ---------- LARGE RELEASE SHOP ---------- */
+  var rankShop=[
+    ['Bronze','🥉',0,0,'شروع کار'],
+    ['Silver','🥈',900,2,'+۲ سکه در هر برد'],
+    ['Gold','🥇',1800,4,'+۴ سکه در هر برد'],
+    ['Platinum','💠',3200,6,'+۶ سکه در هر برد'],
+    ['Diamond','💎',5200,9,'+۹ سکه در هر برد'],
+    ['Master','👑',8000,12,'+۱۲ سکه در هر برد'],
+    ['Grand Master','🌟',12000,16,'+۱۶ سکه در هر برد'],
+    ['Legend','🔥',18000,22,'+۲۲ سکه در هر برد'],
+    ['Mythic','🔱',26000,30,'+۳۰ سکه در هر برد'],
+    ['Immortal','♾️',38000,40,'+۴۰ سکه در هر برد']
+  ];
+  data.purchasedRank=data.purchasedRank||'Bronze';
+  data.rankBonus=safeNum(data.rankBonus,0);
+  window.buyRank=function(i){
+    var r=rankShop[i];if(!r)return;
+    if(r[0]===data.purchasedRank){toast('✅ این رنک فعال است');return;}
+    if(safeNum(data.coins,0)<r[2]){toast('❌ سکه کافی نیست');return;}
+    data.coins-=r[2];data.purchasedRank=r[0];data.rankBonus=r[3];
+    if(typeof window.save==='function')window.save();
+    renderReleaseShop();toast('👑 '+r[0]+' فعال شد — '+r[4]);
+  };
+
+  var extraRelease=[
+    ['🟨','قاب خورشیدی سلطنتی',2500,'frame'],['🌋','قاب آتشفشانی',2800,'frame'],['🌊','قاب یخی قطبی',2400,'frame'],['🌈','قاب رنگین‌کمانی',2200,'frame'],['🪐','قاب زحل',3200,'frame'],['🌑','قاب ماه تاریک',3000,'frame'],['⚡','قاب صاعقه طلایی',3800,'frame'],['🦅','قاب عقاب سلطنتی',4500,'frame'],['🐺','قاب گرگ نقره‌ای',4200,'frame'],['🐲','قاب اژدهای شرقی',5200,'frame'],['👾','قاب گلیچ',3500,'frame'],['💀','قاب اسکلت نئون',3900,'frame'],['🧿','قاب چشم کیهانی',4300,'frame'],['🏆','قاب جام قهرمانی',7000,'frame'],['👑','قاب پادشاه افسانه‌ای',9000,'frame'],
+    ['💜','استایل بنفش سلطنتی',1800,'style'],['🔥','استایل شعله',2200,'style'],['🌊','استایل موج',1900,'style'],['⚡','استایل صاعقه',2600,'style'],['🌈','استایل رنگین',2500,'style'],['🧬','استایل ژنتیک',3200,'style'],['🪐','استایل کیهانی',3600,'style'],['👑','استایل پادشاهی',4500,'style'],['💻','استایل کدنویس',3000,'style'],['🎯','استایل دقیق',2400,'style'],['🧊','استایل کریستالی',3300,'style'],['🌀','استایل چرخشی',4000,'style'],
+    ['🌃','تم نئون شب',1800,'theme'],['🌅','تم طلوع',1700,'theme'],['🌊','تم اقیانوس',2100,'theme'],['🌋','تم آتشفشان',2800,'theme'],['🌲','تم جنگل عمیق',2000,'theme'],['❄️','تم قطبی',2300,'theme'],['🪐','تم کیهانی',3400,'theme'],['🏆','تم قهرمانی',4500,'theme'],['🎆','تم جشن',2800,'theme'],['🕹️','تم رترو',2500,'theme'],['🌙','تم ماه',3100,'theme'],['🔮','تم جادویی',3900,'theme'],
+    ['🎁','جعبه نادر+',1400,'box'],['💎','جعبه حماسی+',2600,'box'],['👑','جعبه افسانه‌ای+',5000,'box'],['🔱','جعبه اسطوره‌ای',9000,'box']
+  ];
+  /* Replace the old shop catalog with one stable merged catalog. */
+  window.items=(Array.isArray(window.items)?window.items:[]).concat(extraRelease);
+  var boxType={common:'common',rare:'rare',epic:'epic',legendary:'legendary'};
+  function buyReleaseItem(i){
+    var it=window.items[i];if(!it)return;
+    if(it[3]==='box'){
+      var map={'جعبه معمولی':'common','جعبه کمیاب':'rare','جعبه حماسی':'epic','جعبه افسانه‌ای':'legendary','جعبه نادر+':'rare','جعبه حماسی+':'epic','جعبه افسانه‌ای+':'legendary','جعبه اسطوره‌ای':'legendary'};
+      var type=map[it[1]]||'common';
+      if(safeNum(data.coins,0)<it[2]){toast('❌ سکه کافی نیست');return;}
+      data.coins-=it[2]; if(typeof grantBox==='function')grantBox(type,1); else {data.boxes=data.boxes||{};data.boxes[type]=(data.boxes[type]||0)+1;}
+      if(typeof window.save==='function')window.save();renderReleaseShop();toast('🎁 '+it[1]+' خریداری شد');return;
+    }
+    data.owned=data.owned||[];
+    if(data.owned.indexOf(i)>=0){toast('✅ قبلاً خریدی');return;}
+    if(safeNum(data.coins,0)<it[2]){toast('❌ سکه کافی نیست');return;}
+    data.coins-=it[2];data.owned.push(i);
+    if(typeof window.save==='function')window.save();renderReleaseShop();toast('✅ '+it[1]+' به شخصی‌سازی اضافه شد');
+  }
+  window.buyNewItem=buyReleaseItem;
+  function card(it,i){
+    var d=document.createElement('div');d.className='item';
+    var owned=data.owned&&data.owned.indexOf(i)>=0;
+    var box=it[3]==='box';
+    d.innerHTML='<div class="emoji">'+it[0]+'</div><h3>'+it[1]+'</h3><span class="badge">'+(box?'🎁 جعبه':it[3])+'</span><p>🪙 '+it[2]+'</p><button class="btn '+((owned&&!box)?'gray':'orange')+'" '+((owned&&!box)?'disabled':'')+'>'+((owned&&!box)?'✅ خریداری شد':'خرید')+'</button>';
+    d.querySelector('button').onclick=function(){buyReleaseItem(i);};
+    return d;
+  }
+  function renderReleaseShop(){
+    var s=document.getElementById('shopItems');if(!s)return;s.innerHTML='';
+    var rank=document.createElement('div');rank.className='card';rank.style.gridColumn='1/-1';
+    rank.innerHTML='<h2>👑 فروشگاه رنک</h2><p class="muted">رنک خریداری‌شده دائمی است و پاداش سکه هر برد را افزایش می‌دهد.</p><div id="rankReleaseGrid" class="shop"></div>';
+    s.appendChild(rank);
+    var rg=rank.querySelector('#rankReleaseGrid');
+    rankShop.forEach(function(r,i){
+      var d=document.createElement('div');d.className='item';var active=r[0]===data.purchasedRank;
+      d.innerHTML='<div class="emoji">'+r[1]+'</div><h3>'+r[0]+'</h3><span class="badge">'+r[4]+'</span><p>'+(r[2]?'🪙 '+r[2]:'رایگان')+'</p><button class="btn '+(active?'gray':'orange')+'" '+(active?'disabled':'')+'>'+(active?'✅ فعال':'خرید')+'</button>';
+      if(!active)d.querySelector('button').onclick=function(){window.buyRank(i);};rg.appendChild(d);
+    });
+    var section=document.createElement('div');section.className='card';section.style.gridColumn='1/-1';section.innerHTML='<h2>🎨 گالری آیتم‌های انتشار</h2><p class="muted">قاب، استایل، تم و جعبه — '+window.items.length+' آیتم قابل خرید</p>';s.appendChild(section);
+    window.items.forEach(function(it,i){s.appendChild(card(it,i));});
+  }
+  window.renderShop=renderReleaseShop;
+
+  /* ---------- SAFE LOAD/SAVE ---------- */
+  data.seasonId=safeNum(data.seasonId,1);
+  data.seasonGames=safeNum(data.seasonGames,0);
+  data.trophies=safeNum(data.trophies,0);
+  data.wins=safeNum(data.wins,0);data.losses=safeNum(data.losses,0);data.games=safeNum(data.games,0);
+  data.coins=safeNum(data.coins,100);data.owned=Array.isArray(data.owned)?data.owned:[];
+  if(data.seasonGames===0){data.trophies=0;data.botBoard.forEach(function(b){b.t=0;b.games=0;});}
+  if(typeof window.save==='function')window.save();
+  if(document.getElementById('shop')&&document.getElementById('shop').classList.contains('active'))renderReleaseShop();
+  if(document.getElementById('leaderboard')&&document.getElementById('leaderboard').classList.contains('active'))window.renderLeaders();
+})();
+</script>
+
+<script>
+/* ===================== RPS ARENA RELEASE V5 — FINAL STABLE SYSTEM =====================
+   This is the single final compatibility layer. It repairs old saved data and
+   makes the release features independent from fragile array indexes.
+*/
+(function(){
+  if(typeof data==='undefined') return;
+  const D=data;
+  const $=window.$ || function(id){return document.getElementById(id)};
+  const num=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
+  const esc2=(v)=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  /* ---------- stable release reset: season only ---------- */
+  if(localStorage.getItem('rpsArenaReleaseV5')!=='1'){
+    D.seasonId=1; D.seasonGames=0; D.trophies=0; D.lastSeasonTop10=[];
+    if(Array.isArray(D.botBoard)) D.botBoard.forEach(b=>{b.t=0;b.games=0;});
+    localStorage.setItem('rpsArenaReleaseV5','1');
+  }
+
+  D.seasonId=num(D.seasonId,1); D.seasonGames=num(D.seasonGames,0);
+  D.trophies=num(D.trophies,0); D.wins=num(D.wins,0); D.losses=num(D.losses,0); D.games=num(D.games,0);
+  D.coins=num(D.coins,100); D.owned=Array.isArray(D.owned)?D.owned:[];
+  D.boxes=Object.assign({common:0,rare:0,epic:0,legendary:0,rarePlus:0,epicPlus:0,legendaryPlus:0,mythic:0},D.boxes||{});
+  D.purchasedRank=D.purchasedRank||'Bronze'; D.rankBonus=num(D.rankBonus,0);
+
+  /* ---------- 1000 genuinely distinct bot names ---------- */
+  const first=['Ali','Arman','Amir','Reza','Sina','Nima','Mahan','Kian','Peyman','Soroush','Shayan','Arian','Rayan','Daniyal','Yasin','Ehsan','Sam','Navid','Milad','Pouya','Parsa','Kasra','Omid','Hamed','Mehran','Ramin','Farhad','Shahab','Behnam','Babak','Mohammad','Hossein','Mostafa','Majid','Matin','Morteza','Mohsen','Saman','Sara','Mina','Negin','Roya','Ava','Sahar','Tara','Elahe','Maryam','Zahra','Hana','Aylin'];
+  const mech=['Robo','Cyber','Neo','Byte','Pixel','Quantum','Mecha','Droid','Circuit','Chrome','Matrix','Omega','Nova','Titan','Vortex','Glitch','Photon','Laser','Core','Nano'];
+  function botName(i){
+    if(i<first.length) return first[i]+' RPS';
+    const j=i-first.length;
+    const a=first[j%first.length], b=mech[Math.floor(j/first.length)%mech.length], n=Math.floor(j/(first.length*mech.length))+1;
+    return a+' '+b+' '+String(n).padStart(2,'0');
+  }
+  D.botBoard=Array.isArray(D.botBoard)?D.botBoard:[];
+  while(D.botBoard.length<1000) D.botBoard.push({});
+  D.botBoard=D.botBoard.slice(0,1000);
+  D.botBoard.forEach((b,i)=>{b.id=i+1;b.n=botName(i);b.skill=(i*73+19)%101;b.t=num(b.t,0);b.games=num(b.games,0);});
+  if(D.seasonGames===0){D.trophies=0;D.botBoard.forEach(b=>{b.t=0;b.games=0;});}
+
+  /* ---------- boxes: one source of truth ---------- */
+  const BOX={
+    common:{label:'جعبه معمولی',icon:'🎁',coins:[100,350],special:.25},
+    rare:{label:'جعبه کمیاب',icon:'💎',coins:[300,800],special:.38},
+    epic:{label:'جعبه حماسی',icon:'💠',coins:[700,1800],special:.52},
+    legendary:{label:'جعبه افسانه‌ای',icon:'👑',coins:[1800,5000],special:.68},
+    rarePlus:{label:'جعبه نادر+',icon:'💎',coins:[500,1300],special:.45},
+    epicPlus:{label:'جعبه حماسی+',icon:'💠',coins:[1000,2600],special:.60},
+    legendaryPlus:{label:'جعبه افسانه‌ای+',icon:'👑',coins:[2500,7000],special:.78},
+    mythic:{label:'جعبه اسطوره‌ای',icon:'🔱',coins:[4000,12000],special:.90}
+  };
+  const boxTypeByName={
+    'جعبه معمولی':'common','جعبه کمیاب':'rare','جعبه حماسی':'epic','جعبه افسانه‌ای':'legendary',
+    'جعبه نادر+':'rarePlus','جعبه حماسی+':'epicPlus','جعبه افسانه‌ای+':'legendaryPlus','جعبه اسطوره‌ای':'mythic'
+  };
+  function grantBox(t,n=1){D.boxes[t]=num(D.boxes[t],0)+n;}
+  function cosmeticReward(){
+    const cat=Array.isArray(window.items)?window.items:[];
+    const pool=[]; cat.forEach((it,i)=>{if(it&&['frame','style','theme'].includes(it[3]))pool.push(i);});
+    return pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+  }
+  window.openStoredBox=function(type){
+    if(!BOX[type])return;
+    if(num(D.boxes[type],0)<=0){toast('❌ از این جعبه نداری');renderProfileBoxes();return;}
+    D.boxes[type]--;
+    const b=BOX[type], roll=Math.random();
+    if(roll<b.special){
+      const idx=cosmeticReward();
+      if(idx!==null){
+        if(!D.owned.includes(idx))D.owned.push(idx);
+        toast('🎉 '+b.label+' باز شد: '+window.items[idx][0]+' '+window.items[idx][1]);
+      }else{const c=Math.floor(b.coins[0]+Math.random()*(b.coins[1]-b.coins[0]+1));D.coins+=c;toast('🎁 +'+c+' 🪙');}
+    }else{
+      const c=Math.floor(b.coins[0]+Math.random()*(b.coins[1]-b.coins[0]+1));D.coins+=c;
+      toast('🎁 '+b.label+' باز شد: +'+c+' 🪙');
+    }
+    D.lastBoxReward='آخرین جعبه: '+b.label+' در '+new Date().toLocaleTimeString('fa-IR');
+    save();renderProfileBoxes();renderShop();
+  };
+
+  window.renderProfileBoxes=function(){
+    let host=$('profileBoxes');
+    if(!host){
+      const profile=$('profile'); if(!profile)return;
+      host=document.createElement('div');host.id='profileBoxes';host.className='card';
+      const missions=$('missionsBox'); const card=missions&&missions.closest('.card');
+      if(card)profile.insertBefore(host,card); else profile.appendChild(host);
+    }
+    let total=0; Object.keys(BOX).forEach(k=>total+=num(D.boxes[k],0));
+    let html='<h2>🎁 جعبه‌های من</h2><p class="muted">جعبه‌ها اینجا ذخیره می‌شوند. برای دریافت جایزه روی «باز کردن» بزن.</p>';
+    html+='<div class="shop" style="margin-top:10px">';
+    Object.keys(BOX).forEach(k=>{const b=BOX[k],c=num(D.boxes[k],0);html+='<div class="item"><div class="emoji">'+b.icon+'</div><h3>'+b.label+'</h3><span class="badge">موجودی: '+c+'</span><p>جایزه: 🪙 '+b.coins[0]+' تا '+b.coins[1]+'</p><button class="btn '+(c?'orange':'gray')+'" '+(c?'':'disabled')+' data-box="'+k+'">'+(c?'باز کردن 🎁':'نداری')+'</button></div>';});
+    html+='</div><p style="margin-top:10px"><b>📦 مجموع جعبه‌ها: '+total+'</b></p>'+(D.lastBoxReward?'<p class="muted">'+esc2(D.lastBoxReward)+'</p>':'');
+    host.innerHTML=html;
+    host.querySelectorAll('[data-box]').forEach(btn=>btn.onclick=()=>window.openStoredBox(btn.dataset.box));
+  };
+
+  /* ---------- stable shop: names, not indexes ---------- */
+  const rankShop=[['Bronze','🥉',0,0],['Silver','🥈',900,2],['Gold','🥇',1800,4],['Platinum','💠',3200,6],['Diamond','💎',5200,9],['Master','👑',8000,12],['Grand Master','🌟',12000,16],['Legend','🔥',18000,22],['Mythic','🔱',26000,30],['Immortal','♾️',38000,40]];
+  window.buyRank=function(i){const r=rankShop[i];if(!r)return;if(r[0]===D.purchasedRank){toast('✅ این رنک فعال است');return;}if(D.coins<r[2]){toast('❌ سکه کافی نیست');return;}D.coins-=r[2];D.purchasedRank=r[0];D.rankBonus=r[3];save();renderShop();toast('👑 '+r[0]+' فعال شد');};
+
+  const extras=[
+   ['🟨','قاب خورشیدی سلطنتی',2500,'frame'],['🌋','قاب آتشفشانی',2800,'frame'],['🌊','قاب یخی قطبی',2400,'frame'],['🌈','قاب رنگین‌کمانی',2200,'frame'],['🪐','قاب زحل',3200,'frame'],['🌑','قاب ماه تاریک',3000,'frame'],['⚡','قاب صاعقه طلایی',3800,'frame'],['🦅','قاب عقاب سلطنتی',4500,'frame'],['🐺','قاب گرگ نقره‌ای',4200,'frame'],['🐲','قاب اژدهای شرقی',5200,'frame'],['👾','قاب گلیچ',3500,'frame'],['💀','قاب اسکلت نئون',3900,'frame'],['🧿','قاب چشم کیهانی',4300,'frame'],['🏆','قاب جام قهرمانی',7000,'frame'],['👑','قاب پادشاه افسانه‌ای',9000,'frame'],
+   ['💜','استایل بنفش سلطنتی',1800,'style'],['🔥','استایل شعله',2200,'style'],['🌊','استایل موج',1900,'style'],['⚡','استایل صاعقه',2600,'style'],['🌈','استایل رنگین',2500,'style'],['🧬','استایل ژنتیک',3200,'style'],['🪐','استایل کیهانی',3600,'style'],['👑','استایل پادشاهی',4500,'style'],['💻','استایل کدنویس',3000,'style'],['🎯','استایل دقیق',2400,'style'],['🧊','استایل کریستالی',3300,'style'],['🌀','استایل چرخشی',4000,'style'],
+   ['🌃','تم نئون شب',1800,'theme'],['🌅','تم طلوع',1700,'theme'],['🌊','تم اقیانوس',2100,'theme'],['🌋','تم آتشفشان',2800,'theme'],['🌲','تم جنگل عمیق',2000,'theme'],['❄️','تم قطبی',2300,'theme'],['🪐','تم کیهانی',3400,'theme'],['🏆','تم قهرمانی',4500,'theme'],['🎆','تم جشن',2800,'theme'],['🕹️','تم رترو',2500,'theme'],['🌙','تم ماه',3100,'theme'],['🔮','تم جادویی',3900,'theme'],
+   ['🎁','جعبه نادر+',1400,'box'],['💎','جعبه حماسی+',2600,'box'],['👑','جعبه افسانه‌ای+',5000,'box'],['🔱','جعبه اسطوره‌ای',9000,'box']
+  ];
+  const base=(typeof items!=='undefined' && Array.isArray(items))?items.slice():(Array.isArray(window.items)?window.items.slice():[]);
+  const names=new Set(base.map(it=>it[1]+'|'+it[3]));
+  extras.forEach(it=>{const k=it[1]+'|'+it[3];if(!names.has(k)){base.push(it);names.add(k);}});
+  window.items=base;
+
+  window.buyNewItem=function(i){const it=window.items[i];if(!it)return;if(it[3]==='box'){const t=boxTypeByName[it[1]];if(!t)return;if(D.coins<it[2]){toast('❌ سکه کافی نیست');return;}D.coins-=it[2];grantBox(t);save();renderShop();renderProfileBoxes();toast('🎁 '+it[1]+' وارد پروفایل شد');return;}if(D.owned.includes(i)){toast('✅ قبلاً خریدی');return;}if(D.coins<it[2]){toast('❌ سکه کافی نیست');return;}D.coins-=it[2];D.owned.push(i);save();renderShop();renderCustomize();toast('✅ '+it[1]+' به شخصی‌سازی اضافه شد');};
+
+  window.renderShop=function(){
+    const s=$('shopItems');if(!s)return;s.innerHTML='';
+    const rcard=document.createElement('div');rcard.className='card';rcard.style.gridColumn='1/-1';rcard.innerHTML='<h2>👑 فروشگاه رنک</h2><p class="muted">رنک‌ها فقط از فروشگاه خریداری می‌شوند؛ برد و باخت رنک را خودکار نمی‌کند.</p><div class="shop" id="releaseRanks"></div>';s.appendChild(rcard);
+    const rg=$('releaseRanks');rankShop.forEach((r,i)=>{const d=document.createElement('div');d.className='item';const active=r[0]===D.purchasedRank;d.innerHTML='<div class="emoji">'+r[1]+'</div><h3>'+r[0]+'</h3><span class="badge">+'+r[3]+' 🪙 در برد</span><p>'+(r[2]?'🪙 '+r[2]:'رایگان')+'</p><button class="btn '+(active?'gray':'orange')+'" '+(active?'disabled':'')+'>'+ (active?'✅ فعال':'خرید') +'</button>';if(!active)d.querySelector('button').onclick=()=>buyRank(i);rg.appendChild(d);});
+    const title=document.createElement('div');title.className='card';title.style.gridColumn='1/-1';title.innerHTML='<h2>🎨 گالری آیتم‌ها</h2><p class="muted">قاب، استایل، تم و جعبه — '+window.items.length+' آیتم</p>';s.appendChild(title);
+    window.items.forEach((it,i)=>{const d=document.createElement('div');d.className='item';const box=it[3]==='box',owned=D.owned.includes(i);d.innerHTML='<div class="emoji">'+it[0]+'</div><h3>'+it[1]+'</h3><span class="badge">'+(box?'🎁 جعبه':it[3])+'</span><p>🪙 '+it[2]+'</p><button class="btn '+(!box&&owned?'gray':'orange')+'" '+(!box&&owned?'disabled':'')+'>'+(!box&&owned?'✅ خریداری شد':'خرید')+'</button>';d.querySelector('button').onclick=()=>window.buyNewItem(i);s.appendChild(d);});
+  };
+
+  /* ---------- profile boxes always visible ---------- */
+  const oldGo=window.go;
+  window.go=function(id){if(typeof oldGo==='function')oldGo(id);if(id==='profile'){renderProfileBoxes();if(typeof renderAchievements==='function')renderAchievements();if(typeof renderMissions==='function')renderMissions();}if(id==='shop')renderShop();if(id==='leaderboard')window.renderLeaders();};
+
+  /* ---------- leaderboard: 1001 visible names, 0 -> 300 seasonal games ---------- */
+  function moveBots(){const g=num(D.seasonGames,0);D.botBoard.forEach((b,i)=>{b.games=g;const target=Math.max(0,Math.floor(g*(0.55+(b.skill/100)*2.2)));const wiggle=((g*17+i*7)%9)-4;b.t=Math.max(0,target+wiggle);});}
+  function rewardTop10(){
+    const rewards=[1000,850,750,650,550,450,400,350,300,250];
+    const all=[{n:D.name||'شما',t:num(D.trophies,0),me:true}].concat(D.botBoard.map(b=>({n:b.n,t:num(b.t,0),me:false})));
+    all.sort((a,b)=>b.t-a.t||String(a.n).localeCompare(String(b.n)));
+    D.lastSeasonTop10=all.slice(0,10).map((x,i)=>({rank:i+1,name:x.n,trophies:x.t,coins:rewards[i]}));
+    const mine=all.find(x=>x.me);if(mine){const p=all.indexOf(mine);if(p<10)D.coins+=rewards[p];}
+    D.seasonId++;D.seasonGames=0;D.trophies=0;D.botBoard.forEach(b=>{b.t=0;b.games=0;});toast('🏆 فصل جدید شروع شد؛ جدول دوباره از صفر شد');
+  }
+  window.countCompletedGame=function(){D.seasonGames=num(D.seasonGames,0)+1;moveBots();if(D.seasonGames>=300)rewardTop10();save();if($('leaderboard')?.classList.contains('active'))window.renderLeaders();};
+  window.addWinReward=function(mult=1){mult=num(mult,1);D.wins++;D.games++;D.streak++;D.trophies+=2;D.coins+=Math.max(1,Math.round(20*mult)+num(D.rankBonus,0));D.rankPoints=num(D.rankPoints,0)+12;if(typeof gainXP==='function')gainXP(Math.max(1,Math.round(25*mult)));window.countCompletedGame();if(typeof checkAchievements==='function')checkAchievements();save();};
+  window.addLossReward=function(){D.losses++;D.games++;D.streak=0;D.coins+=2;D.rankPoints=Math.max(0,num(D.rankPoints,0)-4);if(typeof gainXP==='function')gainXP(5);window.countCompletedGame();if(typeof checkAchievements==='function')checkAchievements();save();};
+  window.recordWin=window.addWinReward;window.recordLoss=window.addLossReward;
+
+  window.renderLeaders=function(){
+    const box=$('leaders');if(!box)return;const all=[{n:D.name||'شما',t:num(D.trophies,0),me:true}].concat(D.botBoard.map(b=>({n:b.n,t:num(b.t,0),me:false})));
+    all.sort((a,b)=>b.t-a.t||String(a.n).localeCompare(String(b.n)));const rank=all.findIndex(x=>x.me)+1;
+    let h='<div class="card"><h3>🏆 فصل '+num(D.seasonId,1)+'</h3><p>🎮 بازی‌های فصل: <b>'+num(D.seasonGames,0)+'/300</b></p><p>👥 ۱۰۰۰ بات + شما · رتبه شما: <b>'+rank+'</b></p></div>';
+    if(Array.isArray(D.lastSeasonTop10)&&D.lastSeasonTop10.length){h+='<div class="card"><h3>🎁 ۱۰ نفر برتر فصل قبل</h3>';D.lastSeasonTop10.forEach(x=>h+='<div class="leader"><b>'+x.rank+'</b><span>'+esc2(x.name)+'</span><strong>🏆 '+num(x.trophies,0)+' · 🪙 '+num(x.coins,0)+'</strong></div>');h+='</div>';}
+    h+='<div class="card"><h3>📊 جدول زنده</h3>';all.forEach((x,i)=>h+='<div class="leader" style="'+(x.me?'border:2px solid var(--orange);background:rgba(245,158,11,.12)':'')+'"><b>'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</b><span>'+esc2(x.n)+(x.me?' ⭐':'')+'</span><strong>🏆 '+num(x.t,0)+'</strong></div>');h+='</div>';box.innerHTML=h;
+  };
+
+  /* ---------- frame interior colors for every frame ---------- */
+  window.paintAvatar=function(el){if(!el)return;const name=D.selectedFrame||'';let hash=0;for(let i=0;i<name.length;i++)hash=(hash*31+name.charCodeAt(i))>>>0;const hue=hash%360;el.style.background='radial-gradient(circle at 35% 28%, hsl('+hue+',100%,92%) 0%, hsl('+hue+',90%,62%) 52%, hsl('+((hue+35)%360)+',70%,28%) 100%)';el.style.border='5px solid hsl('+hue+',90%,45%)';el.style.boxShadow='0 0 0 4px hsla('+hue+',90%,55%,.28),0 0 22px hsla('+hue+',90%,55%,.45)';el.textContent=D.avatar||'😎';};
+  const oldCustomize=window.renderCustomize;
+  window.renderCustomize=function(){if(typeof oldCustomize==='function')oldCustomize();['profileAvatar','customAvatar'].forEach(id=>{const e=$(id);if(e)window.paintAvatar(e);});};
+
+  /* ---------- day/night: real menu/card contrast ---------- */
+  window.toggleDayNight=function(){const day=!document.body.classList.contains('day-mode');D.selectedTheme=day?'light':'night';document.body.classList.toggle('day-mode',day);localStorage.setItem('rpsDayNight',day?'day':'night');save();window.renderCustomize?.();toast(day?'☀️ حالت روز':'🌙 حالت شب');};
+  document.body.classList.toggle('day-mode',D.selectedTheme==='light');
+
+  /* ---------- remove old hotspot/offline remnants ---------- */
+  document.querySelectorAll('[onclick*="startOfflineHotspot"],[onclick*="joinOfflineHotspot"]').forEach(e=>{const p=e.closest('.mode');if(p)p.remove();else e.remove();});
+
+  /* ---------- final persistence ---------- */
+  if(typeof window.save==='function')window.save();
+  window.renderProfileBoxes();
+  if($('shop')?.classList.contains('active'))window.renderShop();
+  if($('leaderboard')?.classList.contains('active'))window.renderLeaders();
+  if($('profile')?.classList.contains('active'))window.renderProfileBoxes();
+})();
+</script>
+
+
+<script>
+/* ===================== RPS ARENA ONLINE CLIENT ===================== */
+(function(){
+  let onlineWS=null;
+  let onlineRole=null;
+  let onlineConnected=false;
+  let onlineSubmitted=false;
+  let onlineMatchFinished=false;
+  let onlineLastResultKey='';
+  let onlineMyScore=0, onlineOppScore=0;
+  let onlineMyName='';
+  let onlineOppName='منتظر حریف...';
+
+  const $o=id=>document.getElementById(id);
+  const escOnline=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  function logOnline(msg){const el=$o('onlineLog');if(!el)return;const d=document.createElement('div');d.innerHTML=msg;el.prepend(d);}
+  function setStatus(msg){const el=$o('onlineStatus');if(el)el.textContent=msg;}
+  function setMoveButtons(disabled){document.querySelectorAll('[data-online-move]').forEach(b=>b.disabled=disabled);}
+  function syncOnlineScore(){if($o('onlineMyScore'))$o('onlineMyScore').textContent=onlineMyScore;if($o('onlineOppScore'))$o('onlineOppScore').textContent=onlineOppScore;if($o('onlineMeName'))$o('onlineMeName').textContent=onlineMyName||'شما';if($o('onlineOppName'))$o('onlineOppName').textContent=onlineOppName||'منتظر حریف...';}
+  function roomCode(){return String(($o('onlineRoom')?.value||'').trim()).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);}
+  function makeCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<5;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;}
+  window.onlineNewCode=function(){const c=makeCode();if($o('onlineRoom'))$o('onlineRoom').value=c;if($o('onlineRoomCode'))$o('onlineRoomCode').textContent=c;setStatus('کد اتاق جدید ساخته شد؛ آن را با دوستت به اشتراک بگذار.');};
+  window.onlineCopyCode=async function(){const c=roomCode();if(!c){setStatus('اول کد اتاق را وارد کن.');return;}try{await navigator.clipboard.writeText(c);setStatus('✅ کد اتاق کپی شد: '+c);}catch(_){setStatus('کد اتاق: '+c);}};
+
+  window.onlineConnect=function(){
+    const name=String(($o('onlineName')?.value||'').trim()).slice(0,24)||'Player';
+    const code=roomCode();
+    if(!/^[A-Z0-9]{4,8}$/.test(code)){setStatus('❌ کد اتاق باید ۴ تا ۸ حرف یا عدد باشد.');return;}
+    if(onlineWS) try{onlineWS.close();}catch(_){ }
+    onlineMyName=name; onlineSubmitted=false; onlineMatchFinished=false; onlineLastResultKey=''; onlineMyScore=0; onlineOppScore=0; onlineOppName='منتظر حریف...'; syncOnlineScore();
+    if($o('onlineRoom'))$o('onlineRoom').value=code;if($o('onlineRoomCode'))$o('onlineRoomCode').textContent=code;
+    const proto=location.protocol==='https:'?'wss':'ws';
+    const url=proto+'://'+location.host+'/room/'+encodeURIComponent(code)+'?name='+encodeURIComponent(name);
+    setStatus('⏳ در حال اتصال به اتاق '+code+' ...');setMoveButtons(true);
+    try{onlineWS=new WebSocket(url);}catch(e){setStatus('❌ اتصال ساخته نشد.');logOnline('خطای WebSocket');return;}
+    onlineWS.onopen=()=>{onlineConnected=true;setStatus('🟢 متصل شدی؛ منتظر حریف هستیم.');logOnline('🟢 اتصال برقرار شد.');};
+    onlineWS.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}handleOnlineMessage(m);};
+    onlineWS.onerror=()=>{setStatus('❌ خطا در اتصال به سرور.');logOnline('❌ خطای اتصال');};
+    onlineWS.onclose=()=>{onlineConnected=false;onlineSubmitted=false;setMoveButtons(true);if($o('onlineStatus')&& !$o('onlineStatus').textContent.includes('پایان'))setStatus('⚪ اتصال بسته شد.');};
+  };
+  function handleOnlineMessage(m){
+    if(m.type==='joined'){onlineRole=m.role;onlineMyName=m.name||onlineMyName;if(Array.isArray(m.players)){const opp=m.players.find(p=>p.role!==onlineRole);onlineOppName=opp?.name||'منتظر حریف...';}syncOnlineScore();logOnline('👤 نقش شما: '+escOnline(onlineRole==='host'?'میزبان':'مهمان'));return;}
+    if(m.type==='players'||m.type==='state'){if(Array.isArray(m.players)){const me=m.players.find(p=>p.role===onlineRole),opp=m.players.find(p=>p.role!==onlineRole);if(me)onlineMyName=me.name;if(opp)onlineOppName=opp.name;else onlineOppName='منتظر حریف...';}if(m.scores)applyScores(m.scores);syncOnlineScore();const ready=Array.isArray(m.players)?m.players.length===2:!m.waiting;if(ready){setStatus(onlineSubmitted?'⏳ حرکت شما ثبت شده؛ منتظر حریف...':'🟢 هر دو بازیکن آماده‌اند؛ انتخاب کن.');setMoveButtons(onlineSubmitted||!!m.gameOver);}else{setStatus('⏳ منتظر ورود بازیکن دوم...');setMoveButtons(true);}return;}
+    if(m.type==='move_received'){onlineSubmitted=true;setMoveButtons(true);setStatus('🔒 حرکت شما ثبت شد؛ منتظر انتخاب حریف...');return;}
+    if(m.type==='round_result'){onlineSubmitted=false;applyScores(m.scores||{});const key=String(m.round)+'|'+m.hostMove+'|'+m.guestMove;if(key!==onlineLastResultKey){onlineLastResultKey=key;const myMove=onlineRole==='host'?m.hostMove:m.guestMove;const oppMove=onlineRole==='host'?m.guestMove:m.hostMove;let text=m.winner==='draw'?'🤝 این دور مساوی شد':(m.winner===onlineRole?'🏆 این دور را بردی':'❌ این دور را باختی');setStatus(text+' · '+moveFa(myMove)+' در برابر '+moveFa(oppMove));logOnline('دور '+m.round+': '+text+' — '+moveFa(myMove)+' / '+moveFa(oppMove));}if(m.gameOver){onlineMatchFinished=true;const won=m.matchWinner===onlineRole;const draw=false;setStatus(won?'🏆 مسابقه را بردی!':'❌ مسابقه را باختی!');if(won){try{if(typeof window.addWinReward==='function')window.addWinReward(1);}catch(_){}}else{try{if(typeof window.addLossReward==='function')window.addLossReward();}catch(_){}}setMoveButtons(true);}else{setStatus('دور بعدی آماده است؛ انتخاب کن.');setMoveButtons(false);}return;}
+    if(m.type==='game_reset'){onlineSubmitted=false;onlineMatchFinished=false;onlineLastResultKey='';applyScores(m.scores||{});setStatus('🔄 مسابقه جدید آماده است.');setMoveButtons(false);logOnline('🔄 مسابقه ریست شد.');return;}
+    if(m.type==='player_left'){onlineSubmitted=false;setMoveButtons(true);onlineOppName='منتظر حریف...';syncOnlineScore();setStatus('⚪ حریف از اتاق خارج شد؛ منتظر بازیکن جدید.');logOnline('⚪ حریف از اتاق خارج شد.');return;}
+    if(m.type==='error'){setStatus('❌ '+String(m.message||'خطای سرور'));setMoveButtons(false);return;}
+  }
+  function applyScores(s){const host=Number(s.host||0),guest=Number(s.guest||0);if(onlineRole==='host'){onlineMyScore=host;onlineOppScore=guest;}else if(onlineRole==='guest'){onlineMyScore=guest;onlineOppScore=host;}syncOnlineScore();}
+  function moveFa(m){return m==='rock'?'🪨 سنگ':m==='paper'?'📄 کاغذ':'✂️ قیچی';}
+  window.onlineMove=function(move){if(!onlineConnected||!onlineWS||onlineWS.readyState!==WebSocket.OPEN){setStatus('❌ اول به اتاق وصل شو.');return;}if(onlineSubmitted){setStatus('⏳ حرکت این دور قبلاً ثبت شده.');return;}try{onlineWS.send(JSON.stringify({type:'move',move}));onlineSubmitted=true;setMoveButtons(true);setStatus('🔒 انتخاب ثبت شد؛ منتظر حریف...');}catch(_){setStatus('❌ ارسال حرکت ناموفق بود.');}};
+  window.onlineReset=function(){if(!onlineWS||onlineWS.readyState!==WebSocket.OPEN){setStatus('اول به اتاق وصل شو.');return;}try{onlineWS.send(JSON.stringify({type:'reset'}));}catch(_){}};
+  window.onlineDisconnect=function(){if(onlineWS){try{onlineWS.close();}catch(_){}}onlineWS=null;onlineConnected=false;onlineSubmitted=false;onlineRole=null;onlineOppName='منتظر حریف...';syncOnlineScore();setMoveButtons(true);setStatus('⚪ از اتاق خارج شدی.');};
+  const oldGoOnline=window.go;window.go=function(id){if(typeof oldGoOnline==='function')oldGoOnline(id);if(id==='online'){syncOnlineScore();setMoveButtons(!onlineConnected);}};
+  const initialName=document.getElementById('nameInput')?.value||'Mehdi';if($o('onlineName'))$o('onlineName').value=initialName;
+  if($o('onlineRoom')){$o('onlineRoom').addEventListener('input',()=>{const c=roomCode();$o('onlineRoomCode').textContent=c||'----';});}
+  window.addEventListener('beforeunload',()=>{try{onlineWS?.close();}catch(_){}});
+})();
+</script>
