@@ -40,6 +40,7 @@ export class Room extends DurableObject {
     this.gameOver = false;
     this.names = { host: null, guest: null };
     this.loaded = false;
+    this.finishingRound = false;
   }
 
   async load() {
@@ -145,10 +146,26 @@ export class Room extends DurableObject {
     const p = this.sessions.get(ws);
     if (!p) return;
     this.sessions.delete(ws);
-    this.moves.delete(p.role);
+    this.moves.clear();
     this.names[p.role] = null;
+
+    // If the host leaves while the guest is still connected, promote the
+    // remaining player so the next player can always join as guest.
+    if (p.role === "host" && this.sessions.size === 1) {
+      const remaining = [...this.sessions.entries()][0];
+      remaining[1].role = "host";
+      this.names.host = remaining[1].name;
+      this.names.guest = null;
+      this.send(remaining[0], {
+        type: "role_changed",
+        role: "host",
+        name: remaining[1].name
+      });
+    }
+
     await this.persist();
     this.broadcast({ type: "player_left", role: p.role, name: p.name, players: this.players() });
+    this.broadcast(this.state());
   }
 
   async onMessage(ws, raw) {
@@ -217,7 +234,10 @@ export class Room extends DurableObject {
   }
 
   async finishRound() {
-    const hostMove = this.moves.get("host");
+    if (this.finishingRound) return;
+    this.finishingRound = true;
+    try {
+      const hostMove = this.moves.get("host");
     const guestMove = this.moves.get("guest");
     if (!hostMove || !guestMove) return;
 
@@ -240,7 +260,10 @@ export class Room extends DurableObject {
 
     this.moves.clear();
     await this.persist();
-    this.broadcast(this.state());
+      this.broadcast(this.state());
+    } finally {
+      this.finishingRound = false;
+    }
   }
 }
 
